@@ -17,6 +17,9 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'psycopg2',
+    'montague_toml',
+    'montague_mako',
     ]
 
 setup(name='mimir',
@@ -43,5 +46,7 @@ setup(name='mimir',
       main = mimir:main
       [console_scripts]
       initialize_mimir_db = mimir.scripts.initializedb:main
+      mserve = mimir.scripts.mserve:main
+      mshell = mimir.scripts.mshell:main
       """,
       )

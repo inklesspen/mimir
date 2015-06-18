@@ -4,12 +4,8 @@ import transaction
 
 from sqlalchemy import engine_from_config
 
-from pyramid.paster import (
-    get_appsettings,
-    setup_logging,
-    )
-
-from pyramid.scripts.common import parse_vars
+from logging.config import dictConfig
+from montague.loadwsgi import Loader
 
 from ..models import (
     DBSession,
@@ -20,18 +16,19 @@ from ..models import (
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> [var=value]\n'
-          '(example: "%s development.ini")' % (cmd, cmd))
+    print('usage: %s <config_uri> appname\n'
+          '(example: "%s config.toml development")' % (cmd, cmd))
     sys.exit(1)
 
 
 def main(argv=sys.argv):
-    if len(argv) < 2:
+    if len(argv) < 3:
         usage(argv)
     config_uri = argv[1]
-    options = parse_vars(argv[2:])
-    setup_logging(config_uri)
-    settings = get_appsettings(config_uri, options=options)
+    appname = argv[2]
+    loader = Loader(config_uri)
+    dictConfig(loader.logging_config(appname))
+    settings = loader.app_config(appname).config
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)

@@ -1,0 +1,12 @@
+web:
+  extends:
+    file: docker-compose-common.yml
+    service: web
+  volumes:
+    - .:/code
+  links:
+    - postgres
+  environment:
+    - POSTGRES_TEST_HOST=postgres
+postgres:
+  image: postgres:9.4
