@@ -2,14 +2,11 @@ import os
 import sys
 import transaction
 
-from sqlalchemy import engine_from_config
-
 from logging.config import dictConfig
 from montague.loadwsgi import Loader
+from pyramid.scripting import prepare
 
 from ..models import (
-    DBSession,
-    MyModel,
     Base,
     )
 
@@ -28,10 +25,11 @@ def main(argv=sys.argv):
     appname = argv[2]
     loader = Loader(config_uri)
     dictConfig(loader.logging_config(appname))
-    settings = loader.app_config(appname).config
-    engine = engine_from_config(settings, 'sqlalchemy.')
-    DBSession.configure(bind=engine)
-    Base.metadata.create_all(engine)
-    with transaction.manager:
-        model = MyModel(name='one', value=1)
-        DBSession.add(model)
+    app = loader.load_app(appname)
+    env = prepare(registry=app.registry)
+    env['app'] = app
+    try:
+        engine = env['request'].db_session.bind
+        Base.metadata.create_all(engine)
+    finally:
+        env['closer']()

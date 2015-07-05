@@ -10,3 +10,5 @@ web:
     - POSTGRES_TEST_HOST=postgres
 postgres:
   image: postgres:9.4
+  ports:
+    - "5432:5432"
