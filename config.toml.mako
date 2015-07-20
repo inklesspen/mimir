@@ -31,7 +31,7 @@ host = "0.0.0.0"
 use = "egg:waitress#main"
 
 [server.production]
-port = "6543"
+port = "8080"
 host = "0.0.0.0"
 use = "egg:waitress#main"
 

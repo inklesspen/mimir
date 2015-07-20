@@ -8,6 +8,7 @@ web:
     - postgres
   environment:
     - POSTGRES_TEST_HOST=postgres
+    - S6_SERVICE_WHITELIST=webpack-dev-server mimir-dev-server cron
 postgres:
   image: postgres:9.4
   ports:

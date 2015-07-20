@@ -29,3 +29,5 @@ zope.sqlalchemy==0.7.6
 alembic==0.7.6
 pytz==2015.4
 beautifulsoup4==4.4.0
+pyramid-rpc==0.6.1
+rq==0.5.3

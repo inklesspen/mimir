@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+cd /code
+/node_modules/.bin/webpack
+exec mserve --app-name production --server-name production --logging-config production config.toml.mako

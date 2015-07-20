@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv /usr/local/bin/python3
+
+import os
+import shutil
+
+service_dir = "/etc/services.d"
+allowed = set(os.getenv('S6_SERVICE_WHITELIST').split())
+for item in os.listdir(service_dir):
+    if item not in allowed:
+        print("{} not allowed, removing".format(item))
+        shutil.rmtree(os.path.join(service_dir, item))

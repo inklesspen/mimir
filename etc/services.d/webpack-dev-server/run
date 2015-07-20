@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+cd /code
+exec /node_modules/.bin/webpack-dev-server
