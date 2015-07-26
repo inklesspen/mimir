@@ -59,7 +59,15 @@ class Credential(Base):
     timezone = Column(String(32), nullable=False)
     valid = Column(Boolean, nullable=False, default=sa.true())
 
-        
+
+class AuditEntry(Base):
+    __tablename__ = 'audit_entries'
+    id = Column(Integer, primary_key=True)
+    credential_id = Column(Integer, ForeignKey('credentials.id'), nullable=False)
+    text = Column(Unicode, nullable=False)
+    timestamp = Column(AwareDateTime, nullable=False)
+
+
 class Thread(Base):
     id = Column(Integer, primary_key=True)
     closed = Column(Boolean, nullable=False, default=False)
