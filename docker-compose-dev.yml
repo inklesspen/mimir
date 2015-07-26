@@ -7,9 +7,20 @@ web:
   links:
     - postgres
   environment:
-    - POSTGRES_TEST_HOST=postgres
     - S6_SERVICE_WHITELIST=webpack-dev-server mimir-dev-server cron
+  volumes_from:
+    - data
 postgres:
   image: postgres:9.4
   ports:
     - "5432:5432"
+  volumes_from:
+    - data
+  environment:
+    - PGDATA=/data/postgresql/pgdata
+data:
+  image: debian:jessie
+  volumes:
+    - /data/postgresql
+    - /data/hashfs
+  command: "true"

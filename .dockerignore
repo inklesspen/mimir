@@ -1,0 +1,4 @@
+.#*
+flycheck_*
+.git
+__pycache__
