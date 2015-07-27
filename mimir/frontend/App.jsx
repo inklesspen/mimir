@@ -1,7 +1,7 @@
-var React = require('react');
-var Locations = require('./components/Locations.jsx');
+import React from 'react';
+import Admin from "./components/Admin.jsx";
 
 React.render(
-  <Locations />,
+  <Admin />,
   document.getElementById('ReactApp')
 );
