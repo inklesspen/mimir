@@ -2,3 +2,6 @@
 flycheck_*
 .git
 __pycache__
+*.egg
+*.egg-info
+EGG-INFO

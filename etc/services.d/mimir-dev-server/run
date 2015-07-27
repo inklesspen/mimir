@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv sh
 
 cd /code
-exec mserve --app-name development --server-name development --logging-config development config.toml.mako
+pip install -e .
+exec mserve --app-name development --server-name development --logging-config development config.toml.mako --reload

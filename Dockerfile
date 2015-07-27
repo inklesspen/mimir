@@ -34,7 +34,7 @@ RUN pip install --upgrade pip && pip install --upgrade setuptools && pip install
 ADD . /code
 WORKDIR /code
 
-RUN pip install -e .
+RUN pip install .
 
 # move this up above npm install, later, once the etc stuff is stable
 ADD etc /etc/
