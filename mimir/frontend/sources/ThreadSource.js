@@ -1,20 +1,11 @@
 import ThreadActions from '../actions/ThreadActions';
-require('whatwg-fetch'); // fetch pollutes the global namespace
-
-var mockData = [
-  {'id': 123, 'page_count': 1000, 'closed': true},
-  {'id': 456, 'page_count': 2000, 'closed': false}
-];
+import jsonrpc from '../util/jsonrpc';
 
 export default {
   fetchThreads() {
     return {
       remote() {
-        return new Promise(function(resolve, reject) {
-          setTimeout(function() {
-            resolve(mockData);
-          }, 25);
-        });
+        return jsonrpc('thread_info', []);
       },
       local() {
         return null;
