@@ -128,6 +128,8 @@ class WriteupPost(Base):
     url = Column(Unicode, nullable=False)
     last_fetched = Column(AwareDateTime, nullable=False)
 
+    versions = relationship("WriteupPostVersion", backref="writeup_post")
+
 
 class WriteupPostVersion(Base):
     id = Column(Integer, primary_key=True)

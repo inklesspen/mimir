@@ -1,7 +1,9 @@
+from sqlalchemy.orm import joinedload
 from pyramid_rpc.jsonrpc import jsonrpc_method
 
 from ..models import (
     Thread,
+    Writeup,
     )
 
 
@@ -13,6 +15,24 @@ def thread_info(request):
         'page_count': t.page_count,
         'closed': t.closed,
     } for t in query]
+
+
+@jsonrpc_method(endpoint='api')
+def writeup_list(request):
+    query = request.db_session.query(Writeup)\
+        .order_by(Writeup.writeup_slug.asc(), Writeup.author_slug.asc())\
+        .options(joinedload(Writeup.posts))
+    return [{
+        'id': w.id,
+        'author_slug': w.author_slug,
+        'writeup_slug': w.writeup_slug,
+        'title': w.title,
+        'status': w.status,
+        'published': w.published,
+        'offensive_content': w.offensive_content,
+        'triggery_content': w.triggery_content,
+        'post_count': len(w.posts),
+    } for w in query]
 
 
 @jsonrpc_method(endpoint='api')

@@ -2,11 +2,14 @@ import React from 'react';
 import AltContainer from 'alt/AltContainer';
 import Locations from './Locations.jsx';
 import ThreadList from './ThreadList.jsx';
+import WriteupList from './WriteupList.jsx';
 import ThreadStore from '../stores/ThreadStore';
+import WriteupStore from '../stores/WriteupStore';
 
 export default class Admin extends React.Component {
     componentDidMount() {
         ThreadStore.fetchThreads();
+        WriteupStore.fetchWriteups();
     }
     render() {
         return (
@@ -23,7 +26,9 @@ export default class Admin extends React.Component {
                         <ThreadList />
                     </AltContainer>
                     <hr />
-                    {/* <Locations /> */}
+                    <AltContainer store={WriteupStore}>
+                        <WriteupList />
+                    </AltContainer>
                 </div>
             </div>
         );
