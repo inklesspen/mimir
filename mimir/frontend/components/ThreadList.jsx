@@ -8,9 +8,10 @@ class Thread extends React.Component {
             "fa", "fa-lg",
             (this.props.thread.closed ? "fa-square-o" : "fa-check-square-o"),
         );
+        var threadUrl = `http://forums.somethingawful.com/showthread.php?threadid=${this.props.thread.id}`;
         return (
             <tr>
-                <td><a href="http://example.com">{this.props.thread.id}</a></td>
+                <td><a href={threadUrl}>{this.props.thread.id}</a></td>
                 <td>{this.props.thread.page_count}</td>
                 <td><span className={classes}></span></td>
             </tr>
