@@ -1,7 +1,9 @@
 import React from 'react';
-import Admin from "./components/Admin.jsx";
+import routes from './routes.jsx';
 
+routes.run((Root) => {
 React.render(
-  <Admin />,
+  <Root />,
   document.getElementById('ReactApp')
 );
+});

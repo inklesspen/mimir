@@ -29,8 +29,16 @@ def writeup(request):
     return {'writeup': writeup}
 
 
+@view_config(route_name='admin', renderer='mimir:templates/admin.mako')
+def admin(request):
+    return {
+        'iframeDevtools': request.registry.settings['mimir.react_iframe_devtools']
+    }
+
+
 def includeme(config):
     config.add_route('list_writeups', '/')
     config.add_route('writeup', '/{author_slug}/{writeup_slug}/')
+    config.add_route('admin', '/admin/*path')
     config.include('pyramid_mako')
     config.scan()

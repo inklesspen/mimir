@@ -1,5 +1,5 @@
 import alt from '../altInstance';
-import WriteupSource from '../sources/WriteupSource';
+import WriteupSource, {WriteupDetailSource} from '../sources/WriteupSource';
 import WriteupActions from '../actions/WriteupActions';
 
 class WriteupStore {
@@ -17,3 +17,21 @@ class WriteupStore {
 }
 
 export default alt.createStore(WriteupStore, 'WriteupStore');
+
+class WriteupDetailStore {
+  constructor() {
+    this.detail = null;
+    this.exportAsync(WriteupDetailSource);
+    this.bindListeners({
+        handleUpdate: WriteupActions.UPDATE_WRITEUP
+    });
+  }
+
+  handleUpdate(detail) {
+    this.detail = detail;
+  }
+}
+
+var WDS = alt.createStore(WriteupDetailStore, 'WriteupDetailStore');
+// There's got to be a better way than this.
+export {WDS as WriteupDetailStore};

@@ -6,7 +6,7 @@ import WriteupList from './WriteupList.jsx';
 import ThreadStore from '../stores/ThreadStore';
 import WriteupStore from '../stores/WriteupStore';
 
-export default class Admin extends React.Component {
+export default class Home extends React.Component {
     componentDidMount() {
         ThreadStore.fetchThreads();
         WriteupStore.fetchWriteups();

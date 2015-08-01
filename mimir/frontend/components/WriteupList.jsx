@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 import classNames from 'classnames';
 
 
@@ -17,7 +18,7 @@ class Writeup extends React.Component {
     render() {
         return (
             <tr>
-                <td>{this.props.writeup.title}</td>
+                <td><Link to="writeup-detail" params={{id: this.props.writeup.id}}>{this.props.writeup.title}</Link></td>
                 <td>{this.props.writeup.author_slug}</td>
                 <td>{this.props.writeup.status}</td>
                 <td><BoolCheckSpan value={this.props.writeup.published} /></td>

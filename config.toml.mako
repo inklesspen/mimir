@@ -13,6 +13,8 @@ use = "egg:mimir#main"
 "debugtoolbar.hosts" = ["0.0.0.0/0"]
 # "debugtoolbar.hosts" = ["127.0.0.1", "::1"]
 
+"mimir.react_iframe_devtools" = true
+
 [application.production]
 use = "egg:mimir#main"
 
@@ -22,6 +24,8 @@ use = "egg:mimir#main"
 "pyramid.debug_routematch" = "false"
 "pyramid.default_locale_name" = "en"
 "pyramid.includes" = ["pyramid_tm"]
+
+"mimir.react_iframe_devtools" = false
 
 "sqlalchemy.url" = "postgresql://postgres@${environ['POSTGRES_PORT_5432_TCP_ADDR']}:${environ['POSTGRES_PORT_5432_TCP_PORT']}/postgres"
 

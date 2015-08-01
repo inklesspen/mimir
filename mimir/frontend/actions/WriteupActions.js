@@ -10,6 +10,12 @@ class WriteupActions {
   fetchFailed(message) {
     this.dispatch(message);
   }
+  fetchWriteup() {
+    this.dispatch();
+  }
+  updateWriteup(writeup) {
+    this.dispatch(writeup);
+  }
 }
 
 export default alt.createActions(WriteupActions);

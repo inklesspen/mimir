@@ -19,3 +19,18 @@ export default {
     };
   }
 };
+
+export var WriteupDetailSource = {
+  fetchWriteup: {
+    remote(state, id) {
+      return Promise.resolve("fnord");
+    },
+    local(state, id) {
+      console.log(state, id);
+      return null;
+    },
+    success: WriteupActions.updateWriteup,
+    error: WriteupActions.fetchFailed,
+    loading: WriteupActions.fetchWriteup
+  }
+};
