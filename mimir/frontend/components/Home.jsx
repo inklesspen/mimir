@@ -1,8 +1,7 @@
 import React from 'react';
 import AltContainer from 'alt/AltContainer';
-import Locations from './Locations.jsx';
-import ThreadList from './ThreadList.jsx';
-import WriteupList from './WriteupList.jsx';
+import ThreadList from './home/ThreadList.jsx';
+import WriteupList from './home/WriteupList.jsx';
 import ThreadStore from '../stores/ThreadStore';
 import WriteupStore from '../stores/WriteupStore';
 
