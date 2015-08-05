@@ -114,7 +114,20 @@ class Writeup(Base):
     # this is for reviews of stuff that respectfully handle triggery shit
     triggery_content = Column(Boolean, nullable=False, default=False)
 
-    posts = relationship("WriteupPost", backref="writeup", order_by='WriteupPost.ordinal')
+    posts = relationship("WriteupPost", backref="writeup", order_by='WriteupPost.index')
+
+    def __json__(self, request):
+        return {
+            'id': self.id,
+            'author_slug': self.author_slug,
+            'writeup_slug': self.writeup_slug,
+            'title': self.title,
+            'status': self.status,
+            'published': self.published,
+            'offensive_content': self.offensive_content,
+            'triggery_content': self.triggery_content,
+            'posts': self.posts,
+        }
 
 
 class WriteupPost(Base):
@@ -129,6 +142,15 @@ class WriteupPost(Base):
     last_fetched = Column(AwareDateTime, nullable=False)
 
     versions = relationship("WriteupPostVersion", backref="writeup_post")
+
+    def __json__(self, request):
+        return {
+            'author': self.author,
+            'index': self.index,
+            'ordinal': self.ordinal,
+            'title': self.title,
+            'url': self.url,
+        }
 
 
 class WriteupPostVersion(Base):

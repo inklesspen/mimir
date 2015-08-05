@@ -23,10 +23,9 @@ export default {
 export var WriteupDetailSource = {
   fetchWriteup: {
     remote(state, id) {
-      return Promise.resolve("fnord");
+      return jsonrpc('writeup_detail', [id]);
     },
     local(state, id) {
-      console.log(state, id);
       return null;
     },
     success: WriteupActions.updateWriteup,

@@ -36,11 +36,19 @@ def writeup_list(request):
 
 
 @jsonrpc_method(endpoint='api')
+def writeup_detail(request, id):
+    query = request.db_session.query(Writeup)\
+        .filter(Writeup.id == id)\
+        .options(joinedload(Writeup.posts))
+    return query.one()
+
+
+@jsonrpc_method(endpoint='api')
 def say_hello(request, name):
     return "Hello, {}!".format(name)
 
 
 def includeme(config):
     config.include('pyramid_rpc.jsonrpc')
-    config.add_jsonrpc_endpoint('api', '/api')
+    config.add_jsonrpc_endpoint('api', '/api', default_renderer='json')
     config.scan()
