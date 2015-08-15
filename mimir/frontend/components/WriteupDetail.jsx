@@ -1,5 +1,6 @@
 import React from 'react';
 import AltContainer from 'alt/AltContainer';
+import WriteupOverview from './writeup_detail/WriteupOverview.jsx';
 import {WriteupDetailStore} from '../stores/WriteupStore';
 
 export default class WriteupDetail extends React.Component {
@@ -12,10 +13,13 @@ export default class WriteupDetail extends React.Component {
             callback(error.message);
         });
     }
+
     render() {
         return (
             <div className="container">
-                Fnord
+                <AltContainer store={WriteupDetailStore}>
+                    <WriteupOverview />
+                </AltContainer>
             </div>
         );
     }

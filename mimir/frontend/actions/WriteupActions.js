@@ -1,4 +1,5 @@
 import alt from '../altInstance';
+import jsonrpc from '../util/jsonrpc';
 
 class WriteupActions {
   fetchWriteups() {
@@ -15,6 +16,13 @@ class WriteupActions {
   }
   updateWriteup(writeup) {
     this.dispatch(writeup);
+  }
+  saveWriteup(writeup) {
+    jsonrpc('save_writeup', [writeup]).then(
+      (savedWriteup) => {
+        this.actions.updateWriteup(savedWriteup);
+      }
+    );
   }
 }
 

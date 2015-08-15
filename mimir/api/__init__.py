@@ -44,6 +44,25 @@ def writeup_detail(request, id):
 
 
 @jsonrpc_method(endpoint='api')
+def save_writeup(request, writeup):
+    if 'id' in writeup:
+        obj = request.db_session.query(Writeup)\
+            .filter(Writeup.id == writeup['id'])\
+            .one()
+        for unsettable in ['id', 'posts', 'author_slug', 'writeup_slug']:
+            if unsettable in writeup:
+                del writeup[unsettable]
+    else:
+        # possibly this isn't quite right yet; we'll see
+        obj = Writeup()
+        request.db_session.add(obj)
+    for key, value in writeup.items():
+        setattr(obj, key, value)
+    request.db_session.flush()
+    return obj
+
+
+@jsonrpc_method(endpoint='api')
 def say_hello(request, name):
     return "Hello, {}!".format(name)
 
