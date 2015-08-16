@@ -1,4 +1,4 @@
-require('whatwg-fetch'); // fetch pollutes the global namespace
+import axios from 'axios';
 
 const apiUrl = '/api';
 
@@ -13,10 +13,6 @@ function checkStatus(response) {
   }
 }
 
-function parseJSON(response) {
-  return response.json();
-}
-
 export default function jsonrpc(method, params) {
   const postBody = {
     jsonrpc: "2.0",
@@ -24,14 +20,7 @@ export default function jsonrpc(method, params) {
     params: params,
     id: idCounter++
   };
-  return fetch(apiUrl, {
-    method: 'post',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(postBody)
-  }).then(checkStatus).then(parseJSON).then(function(response) {
+  return axios.post(apiUrl, postBody).then(checkStatus).then(response => response.data).then(function(response) {
     if (response.jsonrpc !== postBody.jsonrpc) {
       return Promise.reject("invalid jsonrpc version");
     }
