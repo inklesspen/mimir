@@ -23,8 +23,13 @@ class WriteupDetailStore {
     this.detail = null;
     this.exportAsync(WriteupDetailSource);
     this.bindListeners({
-        handleUpdate: WriteupActions.UPDATE_WRITEUP
+        handleUpdate: WriteupActions.UPDATE_WRITEUP,
+        clear: WriteupActions.CLEAR_WRITEUP
     });
+  }
+
+  clear() {
+    this.detail = null;
   }
 
   handleUpdate(detail) {

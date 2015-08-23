@@ -41,6 +41,12 @@ export default class WriteupList extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td><Link to="new-writeup">Add <span className="fa fa-lg fa-plus" aria-hidden="true"></span></Link></td>
+                        <td />
+                        <td />
+                        <td />
+                    </tr>
                 {this.props.writeups.map((writeup) => {
                     return (<Writeup key={writeup.id} writeup={writeup} />);
                  })}

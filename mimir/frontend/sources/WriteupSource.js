@@ -15,7 +15,7 @@ export default {
       // propagates error message
       error: WriteupActions.fetchFailed,
       // triggers store to prepare for the threads update
-      loading: WriteupActions.fetchWriteups
+      loading: WriteupActions.clearWriteups
     };
   }
 };
@@ -30,6 +30,6 @@ export var WriteupDetailSource = {
     },
     success: WriteupActions.updateWriteup,
     error: WriteupActions.fetchFailed,
-    loading: WriteupActions.fetchWriteup
+    loading: WriteupActions.clearWriteup
   }
 };

@@ -2,7 +2,7 @@ import alt from '../altInstance';
 import jsonrpc from '../util/jsonrpc';
 
 class WriteupActions {
-  fetchWriteups() {
+  clearWriteups() {
     this.dispatch();
   }
   updateWriteups(writeups) {
@@ -11,7 +11,7 @@ class WriteupActions {
   fetchFailed(message) {
     this.dispatch(message);
   }
-  fetchWriteup() {
+  clearWriteup() {
     this.dispatch();
   }
   updateWriteup(writeup) {

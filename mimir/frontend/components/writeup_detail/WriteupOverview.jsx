@@ -76,6 +76,21 @@ class FormRowSelect extends React.Component {
 }
 
 
+function mapWithDefaults(detail) {
+    let map = Immutable.Map({
+        'title': '',
+        'author_slug': '',
+        'writeup_slug': '',
+        'status': 'ongoing',
+        'published': false,
+        'offensive_content': false,
+        'triggery_content': false
+    });
+    map = map.merge(detail);
+    return map;
+}
+
+
 export default class WriteupOverview extends React.Component {
     constructor(props) {
         super(props);
@@ -83,9 +98,12 @@ export default class WriteupOverview extends React.Component {
     }
 
     resetState(props) {
+        const creating = !props.detail;
         return {
-            editable: false,
-            detail: Immutable.Map(props.detail)
+            creating,
+            // editable by default if creating
+            editable: creating,
+            detail: mapWithDefaults(props.detail)
         };
     }
 
@@ -102,7 +120,7 @@ export default class WriteupOverview extends React.Component {
         this.setState(
             {
                 editable: false,
-                detail: Immutable.Map(this.props.detail)
+                detail: mapWithDefaults(this.props.detail)
             }
         );
     }
@@ -135,8 +153,8 @@ export default class WriteupOverview extends React.Component {
                 <div className="col-md-12">
                     <form className="form-horizontal">
                         <FormRowInput editable={this.state.editable} label="Title" value={this.state.detail.get('title')} data-id='title' onChange={this.changeHandler('title')} />
-                        <FormRowInput editable={false} label="Author Slug" value={this.state.detail.get('author_slug')} data-id='author_slug' />
-                        <FormRowInput editable={false} label="Writeup Slug" value={this.state.detail.get('writeup_slug')} data-id='writeup_slug' />
+                        <FormRowInput editable={this.state.editable && this.state.creating} label="Author Slug" placeholder="(Cannot be changed later)" value={this.state.detail.get('author_slug')} onChange={this.changeHandler('author_slug')} data-id='author_slug' />
+                        <FormRowInput editable={this.state.editable && this.state.creating} label="Writeup Slug" placeholder="(Cannot be changed later)" value={this.state.detail.get('writeup_slug')} onChange={this.changeHandler('writeup_slug')} data-id='writeup_slug' />
                         <FormRowSelect editable={this.state.editable} label="Status" value={this.state.detail.get('status')} data-id='status' onChange={this.changeHandler('status')}>
                             {['Ongoing', 'Abandoned', 'Completed'].map(l => (<option key={l} value={l.toLowerCase()}>{l}</option>))}
                         </FormRowSelect>
