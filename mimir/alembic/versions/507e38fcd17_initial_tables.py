@@ -38,6 +38,7 @@ def upgrade():
     )
     op.create_table(
         'threads',
+        # TODO: prevent a sequence from being made for this
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('closed', sa.Boolean(), nullable=False),
         sa.Column('page_count', sa.Integer(), nullable=False),

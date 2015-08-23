@@ -69,6 +69,7 @@ class AuditEntry(Base):
 
 
 class Thread(Base):
+    # TODO: prevent a sequence from being made for this
     id = Column(Integer, primary_key=True)
     closed = Column(Boolean, nullable=False, default=False)
     # This should be actual page count, not merely the last fetched
