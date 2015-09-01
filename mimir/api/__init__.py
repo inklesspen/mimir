@@ -2,8 +2,10 @@ from sqlalchemy.orm import joinedload
 from pyramid_rpc.jsonrpc import jsonrpc_method
 
 from ..models import (
+    mallows,
     Thread,
     Writeup,
+    WriteupPost,
     )
 
 
@@ -40,7 +42,8 @@ def writeup_detail(request, id):
     query = request.db_session.query(Writeup)\
         .filter(Writeup.id == id)\
         .options(joinedload(Writeup.posts))
-    return query.one()
+    schema = mallows.Writeup()
+    return schema.dump(query.one()).data
 
 
 @jsonrpc_method(endpoint='api')
@@ -59,7 +62,18 @@ def save_writeup(request, writeup):
     for key, value in writeup.items():
         setattr(obj, key, value)
     request.db_session.flush()
-    return obj
+    schema = mallows.Writeup()
+    return schema.dump(obj).data
+
+
+@jsonrpc_method(endpoint='api')
+def post_detail(request, writeup_id, post_index):
+    query = request.db_session.query(WriteupPost)\
+        .filter(WriteupPost.writeup_id == writeup_id)\
+        .filter(WriteupPost.index == post_index)\
+        .options(joinedload(WriteupPost.versions))
+    schema = mallows.WriteupPost()
+    return schema.dump(query.one()).data
 
 
 @jsonrpc_method(endpoint='api')
