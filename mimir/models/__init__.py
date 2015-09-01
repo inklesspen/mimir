@@ -141,6 +141,7 @@ class WriteupPost(Base):
     title = Column(Unicode, nullable=True)
     url = Column(Unicode, nullable=False)
     last_fetched = Column(AwareDateTime, nullable=False)
+    published = Column(Boolean, nullable=False, default=False)
 
     versions = relationship("WriteupPostVersion", backref="writeup_post")
 
@@ -160,6 +161,9 @@ class WriteupPostVersion(Base):
     html = Column(UnicodeText, nullable=False)
     threadpost_id = Column(Integer, ForeignKey("thread_posts.id"), nullable=True)
     extracted_at = Column(AwareDateTime, nullable=False)
+
+    version = Column(Integer, nullable=False, default=1)
+    active = Column(Boolean, nullable=False, default=False)
 
 
 class Image(Base):
