@@ -1,6 +1,7 @@
 import React from 'react';
 import AltContainer from 'alt/AltContainer';
 import WriteupOverview from './writeup_detail/WriteupOverview.jsx';
+import {PostList} from './writeup_detail/Posts.jsx';
 import {WriteupDetailStore} from '../stores/WriteupStore';
 import WriteupActions from '../actions/WriteupActions';
 
@@ -30,6 +31,7 @@ export default class WriteupDetail extends React.Component {
             <div className="container">
                 <AltContainer store={WriteupDetailStore}>
                     <WriteupOverview />
+                    <PostList />
                 </AltContainer>
             </div>
         );
