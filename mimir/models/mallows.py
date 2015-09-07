@@ -28,7 +28,7 @@ class WriteupPost(Schema):
 
     versions = fields.Nested(
         'WriteupPostVersion',
-        only=['version', 'active', 'html', 'extracted_at'],
+        only=['version', 'active', 'html', 'created_at', 'edit_summary'],
         many=True)
 
 
@@ -37,6 +37,7 @@ class WriteupPostVersion(Schema):
     writeuppost_id = fields.Integer()
     threadpost_id = fields.Integer()
     html = fields.String()
-    extracted_at = fields.DateTime()
+    created_at = fields.DateTime()
     version = fields.Integer()
     active = fields.Boolean()
+    edit_summary = fields.String()

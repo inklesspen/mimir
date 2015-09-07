@@ -138,10 +138,12 @@ class WriteupPostVersion(Base):
     writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=False)
     html = Column(UnicodeText, nullable=False)
     threadpost_id = Column(Integer, ForeignKey("thread_posts.id"), nullable=True)
-    extracted_at = Column(AwareDateTime, nullable=False)
+    created_at = Column(AwareDateTime, nullable=False)
 
     version = Column(Integer, nullable=False, default=1)
     active = Column(Boolean, nullable=False, default=False)
+
+    edit_summary = Column(Unicode(200), nullable=False)
 
 
 class Image(Base):
