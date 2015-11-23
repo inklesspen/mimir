@@ -16,7 +16,8 @@ from sqlalchemy import (
     UnicodeText,
     UniqueConstraint,
     Unicode,
-    Enum
+    Enum,
+    CheckConstraint,
     )
 
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -79,6 +80,10 @@ class Thread(Base):
     pages = relationship("ThreadPage", backref="thread")
     posts = relationship("ThreadPost", backref="thread")
 
+    @property
+    def url(self):
+        return "http://forums.somethingawful.com/showthread.php?threadid={}".format(self.id)
+
 
 class ThreadPage(Base):
     __table_args__ = (UniqueConstraint("thread_id", "page_num"),)
@@ -91,6 +96,10 @@ class ThreadPage(Base):
     fetched_with_id = Column(Integer, ForeignKey("credentials.id"), nullable=False)
     posts = relationship("ThreadPost", backref="page")
 
+    @property
+    def url(self):
+        return "{}&pagenumber={}".format(self.thread.url, self.page_num)
+
 
 class ThreadPost(Base):
     id = Column(Integer, primary_key=True)
@@ -100,6 +109,12 @@ class ThreadPost(Base):
     timestamp = Column(AwareDateTime, nullable=False)
     html = Column(UnicodeText, nullable=False)
     last_extracted = Column(AwareDateTime, nullable=False)
+
+    writeup_post_versions = relationship("WriteupPostVersion", backref="thread_post")
+
+    @property
+    def url(self):
+        return "{}#post{}".format(self.page.url, self.id)
 
 
 class Writeup(Base):
@@ -135,10 +150,13 @@ class WriteupPost(Base):
 
 
 class WriteupPostVersion(Base):
+    __table_args__ = (
+        CheckConstraint(sa.and_(sa.column('writeuppost_id') != sa.null(), sa.column('html') != sa.null())),
+        )
     id = Column(Integer, primary_key=True)
-    writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=False)
-    html = Column(UnicodeText, nullable=False)
-    threadpost_id = Column(Integer, ForeignKey("thread_posts.id"), nullable=True)
+    writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=True)
+    html = Column(UnicodeText, nullable=True)
+    threadpost_id = Column(Integer, ForeignKey("thread_posts.id"), nullable=False)
     created_at = Column(AwareDateTime, nullable=False)
 
     version = Column(Integer, nullable=False, default=1)
@@ -147,9 +165,10 @@ class WriteupPostVersion(Base):
     edit_summary = Column(Unicode(200), nullable=False)
 
 
-class Image(Base):
-    id = Column(String(64), primary_key=True)
-    size = Column(ARRAY(Integer), nullable=False)
+class FetchedImage(Base):
+    # multiple original urls may map to the same id, unfortunately
+    orig_url = Column(String, primary_key=True)
+    id = Column(String(64), nullable=False)
 
 
 def create_session(request):

@@ -15,6 +15,9 @@ use = "egg:mimir#main"
 
 "mimir.react_iframe_devtools" = true
 
+[application.development.hashfs]
+location = "/data/hashfs"
+
 [application.production]
 use = "egg:mimir#main"
 

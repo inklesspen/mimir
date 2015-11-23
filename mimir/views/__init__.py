@@ -1,10 +1,19 @@
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
+from pyramid.response import FileResponse
 import sqlalchemy as sa
 
 from ..models import (
     Writeup,
     )
+
+
+@view_config(route_name='image')
+def image(request):
+    address = request.hashfs.get(request.matchdict['path'])
+    if address is None:
+        raise HTTPNotFound()
+    return FileResponse(address.abspath, request=request)
 
 
 @view_config(route_name='list_writeups', renderer='mimir:templates/list.mako')
@@ -37,8 +46,9 @@ def admin(request):
 
 
 def includeme(config):
+    config.add_route('admin', '/admin/*path')
+    config.add_route('image', '/images/{path:.*}')
     config.add_route('list_writeups', '/')
     config.add_route('writeup', '/{author_slug}/{writeup_slug}/')
-    config.add_route('admin', '/admin/*path')
     config.include('pyramid_mako')
     config.scan()
