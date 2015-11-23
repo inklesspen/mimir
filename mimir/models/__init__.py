@@ -25,6 +25,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from zope.sqlalchemy import register
+import transaction
 
 
 class Base(object):
@@ -151,12 +152,23 @@ class Image(Base):
     size = Column(ARRAY(Integer), nullable=False)
 
 
+def create_session(request):
+    sessionmaker = request.registry['db_sessionmaker']
+    session = sessionmaker()
+    register(session, transaction_manager=request.tm)
+    return session
+
+
+def pyramid_tm_hook(request=None):
+    return transaction.TransactionManager()
+
+
 def includeme(config):
+    config.add_settings({'tm.manager_hook': pyramid_tm_hook})
     settings = config.get_settings()
     config.include('pyramid_tm')
     engine = engine_from_config(settings, 'sqlalchemy.')
     maker = sessionmaker()
-    register(maker)
     maker.configure(bind=engine)
-    config.registry['db_sessionmaker'] = sessionmaker
-    config.add_request_method(lambda request: maker(), 'db_session', reify=True)
+    config.registry['db_sessionmaker'] = maker
+    config.add_request_method(create_session, 'db_session', reify=True)
