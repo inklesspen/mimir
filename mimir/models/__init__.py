@@ -151,7 +151,7 @@ class WriteupPost(Base):
 
 class WriteupPostVersion(Base):
     __table_args__ = (
-        CheckConstraint(sa.and_(sa.column('writeuppost_id') != sa.null(), sa.column('html') != sa.null())),
+        CheckConstraint(sa.or_(sa.column('writeuppost_id') != sa.null(), sa.column('active') == sa.false())),
         )
     id = Column(Integer, primary_key=True)
     writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=True)

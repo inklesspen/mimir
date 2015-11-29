@@ -19,3 +19,18 @@ export default {
     };
   }
 };
+
+
+export var ThreadPageSource = {
+  fetchThreadPage: {
+    remote(state, threadId, pageNum) {
+      return jsonrpc('thread_page', [threadId, pageNum]);
+    },
+    local(state, threadId, pageNum) {
+      return null;
+    },
+    success: ThreadActions.updateThreadPage,
+    error: ThreadActions.fetchFailed,
+    loading: ThreadActions.clearThreadPage
+  }
+};

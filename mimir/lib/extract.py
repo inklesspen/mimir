@@ -16,6 +16,10 @@ def extract_post(request, wpv_id, self_html=False, sleep_between=False):
     """
 
     wpv = request.db_session.query(WPV).filter_by(id=wpv_id).one()
+    return extract_post_from_wpv(request, wpv, self_html, sleep_between)
+
+
+def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     if self_html:
         html = wpv.html
     else:

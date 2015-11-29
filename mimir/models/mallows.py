@@ -41,3 +41,11 @@ class WriteupPostVersion(Schema):
     version = fields.Integer()
     active = fields.Boolean()
     edit_summary = fields.String()
+
+
+class ThreadPost(Schema):
+    id = fields.Integer()
+    timestamp = fields.DateTime()
+    html = fields.String()
+    url = fields.String()
+    author = fields.String()
