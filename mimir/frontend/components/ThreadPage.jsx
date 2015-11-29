@@ -86,7 +86,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Previous">{leftArrowInner}</span></li>
         ) : (
             <li>
-                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: current - 1}} ariaLabel="Previous">{leftArrowInner}</Link>
+                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: start}} ariaLabel="Previous">{leftArrowInner}</Link>
             </li>
         );
         const rightArrowInner = (<span ariaHidden="true">»</span>);
@@ -94,7 +94,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Next">{rightArrowInner}</span></li>
         ) : (
             <li>
-                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: current + 1}} ariaLabel="Next">{rightArrowInner}</Link>
+                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: finish}} ariaLabel="Next">{rightArrowInner}</Link>
             </li>
         );
         const boxes = [];
