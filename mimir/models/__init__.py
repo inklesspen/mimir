@@ -95,6 +95,7 @@ class ThreadPage(Base):
     last_split = Column(AwareDateTime, nullable=True)
     fetched_with_id = Column(Integer, ForeignKey("credentials.id"), nullable=False)
     posts = relationship("ThreadPost", backref="page")
+    fetched_with = relationship("Credential", uselist=False)
 
     @property
     def url(self):
