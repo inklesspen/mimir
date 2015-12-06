@@ -150,8 +150,6 @@ def attach_extracted(request, wpv_id, target):
             index=new_index,
             ordinal='{}'.format(new_index),
             title=result.data['wp_title'],
-            url='kill this',
-            last_fetched=wpv.created_at,
             published=False
         )
         w.posts.append(wp)
@@ -178,8 +176,6 @@ def attach_extracted(request, wpv_id, target):
             index=1,
             ordinal='1',
             title=result.data['wp_title'],
-            url='kill this',
-            last_fetched=wpv.created_at,
             published=False
         )
         w.posts.append(wp)

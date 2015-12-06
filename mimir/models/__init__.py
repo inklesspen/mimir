@@ -152,8 +152,6 @@ class WriteupPost(Base):
     # Some posts have 1.5 and so on, but I don't want to use floats
     ordinal = Column(Unicode(5), nullable=False)
     title = Column(Unicode, nullable=True)
-    url = Column(Unicode, nullable=False)
-    last_fetched = Column(AwareDateTime, nullable=False)
     published = Column(Boolean, nullable=False, default=False)
 
     versions = relationship("WriteupPostVersion", backref="writeup_post")
