@@ -28,7 +28,7 @@ class WriteupPost(Schema):
 
     versions = fields.Nested(
         'WriteupPostVersion',
-        only=['version', 'active', 'html', 'created_at', 'edit_summary'],
+        only=['id', 'version', 'active', 'html', 'created_at', 'edit_summary'],
         many=True)
 
 

@@ -98,6 +98,20 @@ def post_detail(request, writeup_id, post_index):
 
 
 @jsonrpc_method(endpoint='api')
+def activate_version(request, wpv_id):
+    wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id).one()
+    post = wpv.writeup_post
+    for version in post.versions:
+        if version is not wpv:
+            version.active = False
+    wpv.active = True
+
+    request.db_session.flush()
+    schema = mallows.WriteupPostVersion()
+    return schema.dump(wpv).data
+
+
+@jsonrpc_method(endpoint='api')
 def extract_post(request, thread_post_id):
     tp = request.db_session.query(ThreadPost).filter_by(id=thread_post_id).one()
     wpv = WriteupPostVersion(thread_post=tp, created_at=sa.func.now())
