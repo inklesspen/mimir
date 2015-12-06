@@ -41,21 +41,21 @@ def thread_page(request, thread_id, page_num):
 
 
 @jsonrpc_method(endpoint='api')
+def extracted_list(request):
+    query = request.db_session.query(WriteupPostVersion)\
+        .filter_by(writeup_post=None)\
+        .order_by(WriteupPostVersion.id.asc())
+    schema = mallows.WriteupPostVersion(many=True)
+    return schema.dump(query.all()).data
+
+
+@jsonrpc_method(endpoint='api')
 def writeup_list(request):
     query = request.db_session.query(Writeup)\
         .order_by(Writeup.writeup_slug.asc(), Writeup.author_slug.asc())\
         .options(joinedload(Writeup.posts))
-    return [{
-        'id': w.id,
-        'author_slug': w.author_slug,
-        'writeup_slug': w.writeup_slug,
-        'title': w.title,
-        'status': w.status,
-        'published': w.published,
-        'offensive_content': w.offensive_content,
-        'triggery_content': w.triggery_content,
-        'post_count': len(w.posts),
-    } for w in query]
+    schema = mallows.Writeup(many=True)
+    return schema.dump(query.all()).data
 
 
 @jsonrpc_method(endpoint='api')
@@ -108,6 +108,73 @@ def extract_post(request, thread_post_id):
     request.db_session.flush()
     schema = mallows.WriteupPostVersion()
     return schema.dump(wpv).data
+
+
+@jsonrpc_method(endpoint='api')
+def attach_extracted(request, wpv_id, target):
+    wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
+
+    schema = mallows.InputVersionExistingPost()
+    result = schema.load(target)
+    if not result.errors:
+        w = request.db_session.query(Writeup).filter_by(id=result.data['w_id']).one()
+        wp = request.db_session.query(WriteupPost).filter_by(writeup=w, index=result.data['wp_index']).one()
+        wpv.version = max([x.version for x in wp.versions]) + 1
+
+        wp.versions.append(wpv)
+        request.db_session.flush()
+        schema = mallows.WriteupPostVersion()
+        return schema.dump(wpv).data
+
+    schema = mallows.InputVersionNewPost()
+    result = schema.load(target)
+    if not result.errors:
+        w = request.db_session.query(Writeup).filter_by(id=result.data['w_id']).one()
+        new_index = len(w.posts) + 1
+        wp = WriteupPost(
+            author=wpv.thread_post.author,
+            index=new_index,
+            ordinal='{}'.format(new_index),
+            title=result.data['wp_title'],
+            url='kill this',
+            last_fetched=wpv.created_at,
+            published=False
+        )
+        w.posts.append(wp)
+
+        wp.versions.append(wpv)
+        request.db_session.flush()
+        schema = mallows.WriteupPostVersion()
+        return schema.dump(wpv).data
+
+    schema = mallows.InputVersionNewWriteup()
+    result = schema.load(target)
+    if not result.errors:
+        w = Writeup(
+            author_slug=Writeup.slugify(result.data['w_author']),
+            writeup_slug=Writeup.slugify(result.data['w_title']),
+            title=result.data['w_title'],
+            status='ongoing',
+            published=False,
+        )
+        request.db_session.add(w)
+
+        wp = WriteupPost(
+            author=wpv.thread_post.author,
+            index=1,
+            ordinal='1',
+            title=result.data['wp_title'],
+            url='kill this',
+            last_fetched=wpv.created_at,
+            published=False
+        )
+        w.posts.append(wp)
+
+        wp.versions.append(wpv)
+        request.db_session.flush()
+        schema = mallows.WriteupPostVersion()
+        return schema.dump(wpv).data
+    raise ValueError(result.errors)
 
 
 @jsonrpc_method(endpoint='api')

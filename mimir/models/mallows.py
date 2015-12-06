@@ -41,6 +41,7 @@ class WriteupPostVersion(Schema):
     version = fields.Integer()
     active = fields.Boolean()
     edit_summary = fields.String()
+    author = fields.String(attribute='thread_post.author')
 
 
 class ThreadPost(Schema):
@@ -49,3 +50,19 @@ class ThreadPost(Schema):
     html = fields.String()
     url = fields.String()
     author = fields.String()
+
+
+class InputVersionExistingPost(Schema):
+    w_id = fields.Integer(required=True)
+    wp_index = fields.Integer(required=True)
+
+
+class InputVersionNewPost(Schema):
+    w_id = fields.Integer(required=True)
+    wp_title = fields.String(required=True)
+
+
+class InputVersionNewWriteup(Schema):
+    w_title = fields.String(required=True)
+    w_author = fields.String(required=True)
+    wp_title = fields.String(required=True)

@@ -1,14 +1,17 @@
 import React from 'react';
 import AltContainer from 'alt/AltContainer';
 import ThreadList from './home/ThreadList.jsx';
+import {ExtractedList} from './home/ExtractedList.jsx';
 import WriteupList from './home/WriteupList.jsx';
 import ThreadStore from '../stores/ThreadStore';
 import WriteupStore from '../stores/WriteupStore';
+import ExtractedStore from '../stores/ExtractedStore';
 
 export default class Home extends React.Component {
     componentDidMount() {
         ThreadStore.fetchThreads();
         WriteupStore.fetchWriteups();
+        ExtractedStore.fetchExtractedPosts();
     }
     render() {
         return (
@@ -23,6 +26,10 @@ export default class Home extends React.Component {
                 <div className="col-md-9" role="main">
                     <AltContainer store={ThreadStore}>
                         <ThreadList />
+                    </AltContainer>
+                    <hr />
+                    <AltContainer stores={{extracted: ExtractedStore, writeups: WriteupStore}}>
+                        <ExtractedList />
                     </AltContainer>
                     <hr />
                     <AltContainer store={WriteupStore}>

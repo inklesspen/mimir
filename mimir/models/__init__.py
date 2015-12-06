@@ -133,6 +133,16 @@ class Writeup(Base):
 
     posts = relationship("WriteupPost", backref="writeup", order_by='WriteupPost.index')
 
+    @staticmethod
+    def slugify(value):
+        slug = value.lower()
+        slug = re.sub("[^ .&0-9a-z]", "", slug)
+        slug = slug.replace(" & ", "and")
+        slug = slug.replace("&", "-and-")
+        slug = slug.replace(" ", "-")
+        slug = slug.replace(".", "-")
+        return slug.strip("-")
+
 
 class WriteupPost(Base):
     id = Column(Integer, primary_key=True)
