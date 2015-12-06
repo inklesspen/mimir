@@ -44,7 +44,6 @@ def split_threadpage(page, tz):
 def extract_posts(db_session, page, tz):
     posts = split_threadpage(page, tz)
     if page.last_split is None:
-        print("Extracting from page {!r}".format(page))
         # splitting for the first time, no need to check if posts exist
         for post_data in posts:
             post = ThreadPost(thread=page.thread,
@@ -53,7 +52,6 @@ def extract_posts(db_session, page, tz):
                               **vars(post_data))
             page.posts.append(post)
     elif page.last_fetched > page.last_split:
-        print("Extracting from page {!r}".format(page))
         # potentially some new posts or updated posts
         for post_data in posts:
             with db_session.no_autoflush:
@@ -73,10 +71,8 @@ def extract_posts(db_session, page, tz):
 
 
 def extract_posts_from_pages(db_session):
-    print("Currently have {} posts".format(db_session.query(ThreadPost).count()))
     for page in db_session.query(ThreadPage).filter(
             or_(ThreadPage.last_split == null(),
                 ThreadPage.last_fetched > ThreadPage.last_split)):
         tz = pytz.timezone(page.fetched_with.timezone)
         extract_posts(db_session, page, tz)
-    print("Now have {} posts".format(db_session.query(ThreadPost).count()))

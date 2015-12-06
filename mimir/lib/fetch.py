@@ -1,56 +1,57 @@
 import sqlalchemy as sa
 import requests
-from collections import deque
-from time import sleep
-from ..models import Thread, ThreadPage
+from ..models import Thread, ThreadPage, ThreadPost
 from bs4 import BeautifulSoup
 
 
-def fetch_threads(db_session, cred, limit=None):
-    threads = deque([t.id for t in db_session.query(Thread).order_by(Thread.id.asc())])
-    pages_fetched = 0
-    while len(threads) > 0 and (limit is None or limit > pages_fetched):
-        if pages_fetched > 0:
-            # sleep for 20 seconds
-            sleep(20)
-        current_thread = db_session.query(Thread).get(threads.popleft())
-        if current_thread.closed and \
-           current_thread.page_count == len(current_thread.pages):
-            continue
-        refetching = False
-        # if page_count is 0, always fetch first page
-        # else if we have more pages to fetch, fetch the next page
-        # else if not closed, re-fetch the last page and compare it
-        if current_thread.page_count == 0:
-            page_to_fetch = 1
-        else:
-            last_fetched = max(p.page_num for p in current_thread.pages)
-            if current_thread.page_count > last_fetched:
-                page_to_fetch = last_fetched + 1
-            elif not current_thread.closed:
-                page_to_fetch = last_fetched
-                refetching = True
-            else:
-                continue
+def update_thread_status(thread, cred):
+    resp = fetch_thread_page_html(thread.id, 1, cred.cookies)
+    soup = make_soup(resp)
+    page_count = extract_page_count(soup)
+    thread.page_count = page_count
+    thread.closed = extract_closed(soup)
 
-        print("Fetching page {} of thread {!r}".format(page_to_fetch, current_thread))
-        resp = fetch_thread_page(current_thread.id, page_to_fetch, cred.cookies)
-        soup = make_soup(resp)
-        page_count = extract_page_count(soup)
-        current_thread.page_count = page_count
-        current_thread.closed = extract_closed(soup)
-        if refetching:
-            page = [p for p in current_thread.pages if p.page_num == page_to_fetch][0]
-        else:
-            page = ThreadPage(page_num=page_to_fetch)
-            current_thread.pages.append(page)
-        page.last_fetched = sa.func.now()
-        page.fetched_with = cred
-        page.html = str(soup)
-        if current_thread.page_count > page.page_num:
-            # Not done processing
-            threads.appendleft(current_thread.id)
-        pages_fetched += 1
+
+def determine_fetches(db_session, cred):
+    for thread in db_session.query(Thread).filter_by(closed=False):
+        update_thread_status(thread, cred)
+    db_session.flush()
+    incomplete_page_ids = sa.select([ThreadPost.page_id])\
+        .group_by(ThreadPost.page_id).having(sa.func.count(ThreadPost.id) < 40)\
+        .as_scalar()
+    incomplete_pages = sa.select([ThreadPage.thread_id, ThreadPage.page_num], from_obj=sa.join(ThreadPage, Thread))\
+        .where(sa.and_(ThreadPage.id.in_(incomplete_page_ids), Thread.closed == sa.false()))
+    fetch_status = sa.select(
+        [
+            ThreadPage.thread_id.label('thread_id'),
+            sa.func.max(ThreadPage.page_num).label('last_fetched_page'),
+        ]).group_by(ThreadPage.thread_id).alias('fetch_status')
+    unfetched_pages = sa.select(
+        [
+            Thread.id.label('thread_id'),
+            sa.func.generate_series(fetch_status.c.last_fetched_page+1, Thread.page_count).label('page_num'),
+        ], from_obj=sa.join(Thread, fetch_status, Thread.id == fetch_status.c.thread_id))
+    q = incomplete_pages.union(unfetched_pages)
+    q = q.order_by(q.c.thread_id.asc(), q.c.page_num.asc())
+    return db_session.execute(q).fetchall()
+
+
+def fetch_thread_page(db_session, cred, thread_id, page_num):
+    resp = fetch_thread_page_html(thread_id, page_num, cred.cookies)
+    soup = make_soup(resp)
+
+    thread = db_session.query(Thread).filter_by(id=thread_id).one()
+    if page_num in thread.pages_by_pagenum:
+        page = thread.pages_by_pagenum[page_num]
+    else:
+        page = ThreadPage(page_num=page_num)
+        thread.pages.append(page)
+
+    page.last_fetched = sa.func.now()
+    page.fetched_with = cred
+    page.html = str(soup)
+
+    db_session.flush()
 
 
 def make_soup(resp):
@@ -68,13 +69,14 @@ def extract_closed(soup):
     return 'closed' in buttons.find(alt="Reply")['src']
 
 
-def fetch_thread_page(thread_id, page_num, cookies=None):
+def fetch_thread_page_html(thread_id, page_num, cookies=None):
     if cookies is None:
         cookies = {}
     params = {
         'threadid': thread_id,
         'pagenumber': page_num,
         'noseen': 1,
+        'perpage': 40,
     }
     headers = {
         'User-Agent': "mimir"

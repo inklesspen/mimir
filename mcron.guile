@@ -1,1 +1,2 @@
-;; (job '(next-hour) "fnord")
+;; jobs are all run from the user's home directory, which is NOT /code
+(job '(next-hour) (string-append "mimir_worker /code/config.toml.mako " (getenv "WORKER_ENV")))

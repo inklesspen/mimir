@@ -6,6 +6,7 @@ web:
     - postgres
   environment:
     - S6_SERVICE_WHITELIST=mimir-prod-server cron
+    - WORKER_ENV=production
 postgres:
   image: postgres:9.4
   ports:

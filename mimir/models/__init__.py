@@ -20,6 +20,7 @@ from sqlalchemy import (
     CheckConstraint,
     )
 
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy import engine_from_config
@@ -79,6 +80,11 @@ class Thread(Base):
     page_count = Column(Integer, nullable=False)
     pages = relationship("ThreadPage", backref="thread")
     posts = relationship("ThreadPost", backref="thread")
+
+    pages_by_pagenum = relationship(
+        "ThreadPage",
+        collection_class=attribute_mapped_collection('page_num'),
+    )
 
     @property
     def url(self):

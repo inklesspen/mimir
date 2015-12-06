@@ -8,6 +8,7 @@ web:
     - postgres
   environment:
     - S6_SERVICE_WHITELIST=webpack-dev-server mimir-dev-server cron
+    - WORKER_ENV=development
   volumes_from:
     - data
 postgres:

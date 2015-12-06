@@ -48,5 +48,6 @@ setup(name='mimir',
       initialize_mimir_db = mimir.scripts.initializedb:main
       mserve = mimir.scripts.mserve:main
       mshell = mimir.scripts.mshell:main
+      mimir_worker = mimir.scripts.worker:main
       """,
       )
