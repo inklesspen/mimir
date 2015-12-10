@@ -50,6 +50,8 @@ class ThreadPost(Schema):
     html = fields.String()
     url = fields.String()
     author = fields.String()
+    has_been_extracted = fields.Boolean()
+    is_in_writeup = fields.Boolean()
 
 
 class InputVersionExistingPost(Schema):

@@ -123,6 +123,15 @@ class ThreadPost(Base):
     def url(self):
         return "{}#post{}".format(self.page.url, self.id)
 
+    @property
+    def has_been_extracted(self):
+        return len(self.writeup_post_versions) > 0
+
+    @property
+    def is_in_writeup(self):
+        w = [wpv for wpv in self.writeup_post_versions if wpv.writeup_post is not None]
+        return len(w) > 0
+
 
 class Writeup(Base):
     __table_args__ = (UniqueConstraint("author_slug", "writeup_slug"),)

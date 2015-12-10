@@ -9,6 +9,15 @@ const EXTRACT_WORKING = 'extract_working';
 const EXTRACT_DONE = 'extract_done';
 
 
+class BooleanSpan extends React.Component {
+    render() {
+        var classes = classNames("fa", "fa-lg",
+                                 (this.props.value ? "fa-check-circle-o" : "fa-times-circle"),
+                                 (this.props.value ? "text-info" : "text-danger"));
+        return (<span className={classes}></span>);
+    }
+}
+
 class ThreadPost extends React.Component {
     constructor(props) {
         super(props);
@@ -38,8 +47,7 @@ class ThreadPost extends React.Component {
         return (evt) => {
             evt.preventDefault();
             this.setState({extractState: EXTRACT_WORKING});
-            jsonrpc('extract_post', [this.props.post.id]).then((result) => {
-                console.log(result);
+            jsonrpc('extract_post', [this.props.post.id]).then(() => {
                 this.setState({extractState: EXTRACT_DONE});
             });
         };
@@ -53,13 +61,14 @@ class ThreadPost extends React.Component {
     }
 
     render() {
-
         return (
             <div className="panel panel-default">
                 <div className="panel-heading">
                     <ul className="list-inline">
                         <li><a href={this.props.post.url}>#{this.props.post.id}</a></li>
                         <li>{this.props.post.author}</li>
+                        <li>Extracted <BooleanSpan value={this.props.post.has_been_extracted} /></li>
+                        <li>In Writeup <BooleanSpan value={this.props.post.is_in_writeup} /></li>
                         <li className="pull-right">{this.extractLink()}</li>
                     </ul>
                     <span></span>
