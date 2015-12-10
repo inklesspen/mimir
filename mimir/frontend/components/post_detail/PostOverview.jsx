@@ -1,6 +1,7 @@
 import React from 'react';
 import Immutable from 'immutable';
 import {FormRowInput, FormRowCheckbox, FormRowSelect} from '../FormRowTools.jsx';
+import PostActions from '../../actions/PostActions';
 
 function mapWithDefaults(post) {
     let map = Immutable.Map({
@@ -36,7 +37,7 @@ export class PostOverview extends React.Component {
 
     save() {
         let value = this.state.post.toJS();
-        console.log("savePost", value);
+        PostActions.savePost(value);
     }
 
     cancel() {
@@ -77,6 +78,7 @@ export class PostOverview extends React.Component {
                         <FormRowInput editable={this.state.editable} label="Author" value={this.state.post.get('author')} data-id='author' onChange={this.changeHandler('author')} />
                         <FormRowInput editable={this.state.editable} label="Ordinal" value={this.state.post.get('ordinal')} data-id='ordinal' onChange={this.changeHandler('ordinal')} />
                         <FormRowInput editable={this.state.editable} label="Title" value={this.state.post.get('title')} data-id='title' onChange={this.changeHandler('title')} />
+                        <FormRowCheckbox editable={this.state.editable} label="Published" value={this.state.post.get('published')} onChange={this.changeHandler('published')} />
 
                         <div className="form-group">
                             <div className="col-sm-offset-2 col-sm-10">

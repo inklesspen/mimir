@@ -98,6 +98,22 @@ def post_detail(request, writeup_id, post_index):
 
 
 @jsonrpc_method(endpoint='api')
+def save_post(request, post):
+    obj = request.db_session.query(WriteupPost).filter(WriteupPost.id == post['id']).one()
+
+    # TODO: switch to marshmallow
+    for unsettable in ['id', 'versions', 'active_version', 'writeup']:
+        if unsettable in post:
+            del post[unsettable]
+    for key, value in post.items():
+        setattr(obj, key, value)
+
+    request.db_session.flush()
+    schema = mallows.WriteupPost()
+    return schema.dump(obj).data
+
+
+@jsonrpc_method(endpoint='api')
 def activate_version(request, wpv_id):
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id).one()
     post = wpv.writeup_post
@@ -155,6 +171,7 @@ def attach_extracted(request, wpv_id, target):
         w.posts.append(wp)
 
         wp.versions.append(wpv)
+        wpv.active = True
         request.db_session.flush()
         schema = mallows.WriteupPostVersion()
         return schema.dump(wpv).data
@@ -181,6 +198,7 @@ def attach_extracted(request, wpv_id, target):
         w.posts.append(wp)
 
         wp.versions.append(wpv)
+        wpv.active = True
         request.db_session.flush()
         schema = mallows.WriteupPostVersion()
         return schema.dump(wpv).data

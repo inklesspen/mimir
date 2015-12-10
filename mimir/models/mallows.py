@@ -13,7 +13,7 @@ class Writeup(Schema):
 
     posts = fields.Nested(
         'WriteupPost',
-        only=['author', 'index', 'ordinal', 'title', 'url'],
+        only=['author', 'index', 'ordinal', 'title', 'published'],
         many=True)
 
 
@@ -24,7 +24,7 @@ class WriteupPost(Schema):
     index = fields.Integer()
     ordinal = fields.String()
     title = fields.String()
-    url = fields.Url()
+    published = fields.Boolean()
 
     versions = fields.Nested(
         'WriteupPostVersion',
