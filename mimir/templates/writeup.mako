@@ -8,7 +8,7 @@
   <div class="col-md-8">
     <table class="table table-condensed">
       <tbody>
-% for post in writeup.posts:
+% for post in writeup.published_posts:
         <tr>
           <td>${post.ordinal}</td>
           <td><a href="#${post.ordinal}">${post.title}</a></td>
@@ -19,14 +19,15 @@
   </div>
 </div>
 
-% for post in writeup.posts:
+% for post in writeup.published_posts:
 % if not loop.first:
 <hr>
 % endif
 <div id="${post.ordinal}">
 <p>
   <h3>${post.title}</h3>
-    <span class="author">posted by ${post.author}</span> <a href="${post.url}">Original SA post</a>
+    <span class="author">posted by ${post.author}</span> <a href="${post.active_version.url}">Original SA post</a>
 </p>
+${post.active_version}
 </div>
 % endfor

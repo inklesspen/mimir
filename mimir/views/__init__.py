@@ -5,6 +5,7 @@ import sqlalchemy as sa
 
 from ..models import (
     Writeup,
+    WriteupPost,
     )
 
 
@@ -29,7 +30,7 @@ def list_writeups(request):
 def writeup(request):
     try:
         writeup = request.db_session.query(Writeup)\
-            .options(sa.orm.joinedload(Writeup.posts))\
+            .options(sa.orm.joinedload(Writeup.posts).joinedload(WriteupPost.active_version))\
             .filter_by(author_slug=request.matchdict['author_slug'],
                        writeup_slug=request.matchdict['writeup_slug'])\
             .one()

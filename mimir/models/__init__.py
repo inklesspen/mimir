@@ -21,6 +21,7 @@ from sqlalchemy import (
     )
 
 from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy import engine_from_config
@@ -147,7 +148,16 @@ class Writeup(Base):
     # this is for reviews of stuff that respectfully handle triggery shit
     triggery_content = Column(Boolean, nullable=False, default=False)
 
-    posts = relationship("WriteupPost", backref="writeup", order_by='WriteupPost.index')
+    posts = relationship("WriteupPost",
+                         backref="writeup", order_by='WriteupPost.index',
+                         cascade="all, delete-orphan")
+
+    published_posts = relationship(
+        "WriteupPost",
+        viewonly=True,
+        order_by='WriteupPost.index',
+        primaryjoin=("and_(Writeup.id == WriteupPost.writeup_id, "
+                     "WriteupPost.published == true())"))
 
     @staticmethod
     def slugify(value):
@@ -170,7 +180,15 @@ class WriteupPost(Base):
     title = Column(Unicode, nullable=True)
     published = Column(Boolean, nullable=False, default=False)
 
-    versions = relationship("WriteupPostVersion", backref="writeup_post")
+    versions = relationship("WriteupPostVersion", backref="writeup_post",
+                            cascade="all, delete-orphan")
+
+    active_version = relationship(
+        "WriteupPostVersion",
+        viewonly=True,
+        uselist=False,
+        primaryjoin=("and_(WriteupPost.id == WriteupPostVersion.writeuppost_id, "
+                     "WriteupPostVersion.active == true())"))
 
 
 class WriteupPostVersion(Base):
@@ -187,6 +205,11 @@ class WriteupPostVersion(Base):
     active = Column(Boolean, nullable=False, default=False)
 
     edit_summary = Column(Unicode(200), nullable=False)
+
+    url = association_proxy('thread_post', 'url')
+
+    def __html__(self):
+        return self.html
 
 
 class FetchedImage(Base):
