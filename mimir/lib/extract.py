@@ -43,4 +43,6 @@ def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
         a_tag['href'] = urljoin(wpv.thread_post.url, a_tag['href'])
         a_tag['rel'] = 'nofollow'
 
-    wpv.html = soup.prettify()
+    div = soup.div.extract()
+    div.hidden = True
+    wpv.html = div.prettify(formatter="html")
