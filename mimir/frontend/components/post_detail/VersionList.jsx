@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import {Link} from 'react-router';
 import jsonrpc from '../../util/jsonrpc';
 import {PostStore} from '../../stores/PostStore';
 
@@ -25,6 +26,9 @@ class Version extends React.Component {
         if (!this.props.version.active) {
             actions.push((<li key="2"><a role="button" href="#" onClick={this.activateHandler()}>Activate</a></li>));
         }
+        actions.push((<li key="3">
+            <Link to="version-editor" params={{id: this.props.version.id}}>Copy and Edit</Link>
+        </li>));
         return (
             <tr>
                 <td>{this.props.version.version}</td>
