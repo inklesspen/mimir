@@ -136,6 +136,27 @@ def get_wpv(request, wpv_id):
 
 
 @jsonrpc_method(endpoint='api')
+def save_wpv(request, wpv_data):
+    wp = request.db_session.query(WriteupPost).filter_by(id=wpv_data['writeuppost_id']).one()
+    tp = request.db_session.query(ThreadPost).filter_by(id=wpv_data['threadpost_id']).one()
+    for _wpv in wp.versions:
+        _wpv.active = False
+    new_version = max([_wpv.version for _wpv in wp.versions]) + 1
+    wpv = WriteupPostVersion()
+    wpv.writeup_post = wp
+    wpv.thread_post = tp
+    wpv.html = wpv_data['html']
+    wpv.created_at = sa.func.now()
+    wpv.version = new_version
+    wpv.active = True
+    wpv.edit_summary = wpv_data['edit_summary']
+
+    request.db_session.flush()
+    schema = mallows.WriteupPostVersion()
+    return schema.dump(wpv).data
+
+
+@jsonrpc_method(endpoint='api')
 def extract_post(request, thread_post_id):
     tp = request.db_session.query(ThreadPost).filter_by(id=thread_post_id).one()
     wpv = WriteupPostVersion(thread_post=tp, created_at=sa.func.now())

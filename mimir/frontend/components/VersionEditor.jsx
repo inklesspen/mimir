@@ -3,6 +3,7 @@ import AltContainer from 'alt/AltContainer';
 import {VersionStore} from '../stores/VersionStore';
 import VersionActions from '../actions/VersionActions';
 import Immutable from 'immutable';
+import classNames from 'classnames';
 
 
 const formRowWrapper = function(htmlFor, label, elem) {
@@ -45,10 +46,55 @@ class FormTextArea extends React.Component {
 }
 
 
+// TODO: find a way to not have to hardcode this
+const SQUIRE_PATH = "/static/squire/document.html";
+
+class SquireEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {currentValue: props.value};
+    }
+
+    loaded() {
+        return (evt) => {
+            let editor = React.findDOMNode(this.refs.squireEditor).contentWindow.editor;
+            editor.addEventListener('input', this.changed());
+            this.editor = editor;
+            this.editor.setHTML(this.props.value);
+        };
+    }
+    changed() {
+        return () => {
+            let newValue = this.editor.getHTML();
+            this.setState({currentValue: newValue});
+            this.props.onChange(newValue);
+        };
+    }
+    refreshView(props) {
+        if (this.editor && props.value && props.value !== this.state.currentValue) {
+            this.editor.setHTML(props.value);
+        }
+    }
+    shouldComponentUpdate() {
+        // Let's just never update this component again.
+        return false;
+    }
+    componentWillReceiveProps(nextProps) {
+        this.refreshView(nextProps);
+        this.setState({currentValue: nextProps.value});
+    }
+    render() {
+        return (
+            <div ref="squireContainer">
+                <iframe ref="squireEditor" style={{width: '100%', height: '500px'}} src={SQUIRE_PATH} onLoad={this.loaded()}  />
+            </div>
+        );
+    }
+}
+
 class VersionForm extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = this.makeState(props);
     }
 
@@ -56,9 +102,15 @@ class VersionForm extends React.Component {
         var state = {};
         state.data = Immutable.Map({
             editSummary: '',
-            html: props.version.html
+            html: props.version.html,
+            activeTab: 'source'
         });
         return state;
+    }
+    resetHandler() {
+        return () => {
+            this.setState(this.makeState(this.props));
+        };
     }
     componentWillReceiveProps(nextProps) {
         this.setState(this.makeState(nextProps));
@@ -68,12 +120,52 @@ class VersionForm extends React.Component {
             this.setState({data: this.state.data.set(field, value)});
         };
     }
+    tabClickHandler(newTab) {
+        return (evt) => {
+            evt.preventDefault();
+            this.setState({data: this.state.data.set('activeTab', newTab)});
+        };
+    }
+
+    getHtmlView() {
+        return {
+            __html: this.state.data.get('html')
+        };
+    }
+
+    saveHandler() {
+        return () => {
+            let save = {
+                'edit_summary': this.state.data.get('editSummary'),
+                'html': this.state.data.get('html'),
+                'writeuppost_id': this.props.version.writeuppost_id,
+                'threadpost_id': this.props.version.threadpost_id
+            };
+            VersionActions.saveVersion(save);
+        };
+    }
 
     render() {
+        let canSave = this.state.data.get('editSummary').length > 0;
         return (
             <div>
                 <FormInput data-id="editSummary" label="Edit Summary" value={this.state.data.get('editSummary')} onChange={this.changeHandler('editSummary')} />
-                <FormTextArea data-id="html" value={this.state.data.get('html')} onChange={this.changeHandler('html')} />
+                <button type="button" onClick={this.saveHandler()} className="btn btn-success" disabled={!canSave}>Save</button>
+                <button type="button" onClick={this.resetHandler()} className="btn btn-danger pull-right">Reset</button>
+                <ul className="nav nav-tabs nav-justified">
+                    <li role="presentation" className={classNames({'active': this.state.data.get('activeTab') === 'source'})}><a href="#" onClick={this.tabClickHandler('source')}>Source</a></li>
+                    <li role="presentation" className={classNames({'active': this.state.data.get('activeTab') === 'squire'})}><a href="#" onClick={this.tabClickHandler('squire')}>Squire</a></li>
+                    <li role="presentation" className={classNames({'active': this.state.data.get('activeTab') === 'view'})}><a href="#" onClick={this.tabClickHandler('view')}>View</a></li>
+                </ul>
+                <div className={classNames({'hidden': this.state.data.get('activeTab') !== 'source'})}>
+                    <FormTextArea data-id="html" value={this.state.data.get('html')} onChange={this.changeHandler('html')} />
+                </div>
+                <div className={classNames({'hidden': this.state.data.get('activeTab') !== 'squire'})}>
+                    <SquireEditor value={this.state.data.get('html')} onChange={this.changeHandler('html')} />
+                </div>
+                <div className={classNames({'hidden': this.state.data.get('activeTab') !== 'view'})}>
+                    <div dangerouslySetInnerHTML={this.getHtmlView()} />
+                </div>
             </div>
         );
     }
