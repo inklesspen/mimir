@@ -20,6 +20,7 @@ export default function jsonrpc(method, params) {
     params: params,
     id: idCounter++
   };
+
   return axios.post(apiUrl, postBody).then(checkStatus).then(response => response.data).then(function(response) {
     if (response.jsonrpc !== postBody.jsonrpc) {
       return Promise.reject("invalid jsonrpc version");

@@ -29,7 +29,6 @@ export default class PostDetail extends React.Component {
     }
 
     render() {
-        console.log(this.props);
         return (
             <div className="container">
                 <AltContainer store={PostStore}>

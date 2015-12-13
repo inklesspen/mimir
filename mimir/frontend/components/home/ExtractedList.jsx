@@ -123,6 +123,7 @@ class ExtractedForm extends React.Component {
             jsonrpc('attach_extracted', [this.props.post.id, target]).then((resp) => {
                 // now what? looks like we need the dumb Navigation mixin, or to upgrade
                 alert("It's done, but I can't redirect because dumb stuff. Reload the page.");
+                // We should redirect to the post-detail
             });
         };
     }

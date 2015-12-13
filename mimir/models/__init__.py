@@ -101,6 +101,9 @@ class ThreadPage(Base):
     last_fetched = Column(AwareDateTime, nullable=False)
     last_split = Column(AwareDateTime, nullable=True)
     fetched_with_id = Column(Integer, ForeignKey("credentials.id"), nullable=False)
+    # TODO: add timezone here
+    # TODO: allow multiple fetches, generally only caring about the latest one
+    # but keeping the rest around just in case?
     posts = relationship("ThreadPost", backref="page")
     fetched_with = relationship("Credential", uselist=False)
 

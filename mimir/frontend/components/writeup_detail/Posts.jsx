@@ -37,13 +37,6 @@ export class PostList extends React.Component {
                 {this.props.detail.posts.map((post) => {
                     return (<Post key={post.index} writeupId={this.props.detail.id} post={post} />);
                  })}
-                    <tr>
-                        <td>
-                            <Link to="new-post" params={{writeupId: this.props.detail.id}}>Add <span className="fa fa-lg fa-plus" aria-hidden="true"></span></Link>
-                        </td>
-                        <td />
-                        <td />
-                    </tr>
                 </tbody>
             </table>
         );

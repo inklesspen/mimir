@@ -77,6 +77,7 @@ def save_writeup(request, writeup):
             if unsettable in writeup:
                 del writeup[unsettable]
     else:
+        raise NotImplementedError("deprecated!")
         # possibly this isn't quite right yet; we'll see
         obj = Writeup()
         request.db_session.add(obj)

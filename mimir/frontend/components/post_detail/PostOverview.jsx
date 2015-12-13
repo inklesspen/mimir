@@ -41,6 +41,7 @@ export class PostOverview extends React.Component {
     }
 
     cancel() {
+        // TODO: if 'creating', transition back to the writeup detail
         this.setState(
             {
                 editable: false,
@@ -71,6 +72,7 @@ export class PostOverview extends React.Component {
         } else {
             btns = (<button type="button" onClick={this.edit.bind(this)} className="btn btn-default" >Edit</button>);
         }
+        // TODO: if creating, optionally take a url to the post on SA
         return (
             <div className="row">
                 <div className="col-md-12">
