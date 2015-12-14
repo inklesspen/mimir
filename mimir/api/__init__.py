@@ -207,6 +207,12 @@ def extract_post(request, thread_post_id):
 
 
 @jsonrpc_method(endpoint='api', permission='admin')
+def delete_extracted(request, wpv_id):
+    wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
+    request.db_session.delete(wpv)
+
+
+@jsonrpc_method(endpoint='api', permission='admin')
 def attach_extracted(request, wpv_id, target):
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
 

@@ -128,6 +128,16 @@ class ExtractedForm extends React.Component {
         };
     }
 
+    deleteHandler() {
+        return (evt) => {
+            evt.preventDefault();
+            jsonrpc('delete_extracted', [this.props.post.id]).then(() => {
+                alert("It's done, but I can't redirect because dumb stuff. Reload the page.");
+                // We should redirect to the home page
+            });
+        };
+    }
+
     render() {
         const state = this.state.data;
         let writeupSelect = (
@@ -185,6 +195,7 @@ class ExtractedForm extends React.Component {
                 {writeupPostSelect}
                 <FormInput data-id="posttitle" label="New Post Title" visible={state.get('selectedWriteup') === 'w' || state.get('selectedWriteupPost') === 'wp'} value={state.get('writeinWriteupPostTitle')} onChange={this.changeHandler('writeinWriteupPostTitle')} />
                 <button onClick={this.clickHandler()} type="button" className="btn btn-success" disabled={(!activeButton) ? "disabled" : null}>Do it</button>
+                <button onClick={this.deleteHandler()} type="button" className="btn btn-danger pull-right">Delete</button>
             </div>
         );
     }
