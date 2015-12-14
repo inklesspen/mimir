@@ -1,20 +1,22 @@
 import React from 'react';
-import routes from './routes.jsx';
+import ReactDOM from 'react-dom';
+import {Router} from 'react-router';
+import {routes} from './routes.jsx';
+import {createHistory} from 'history';
 import jsonrpc from './util/jsonrpc';
 import Auth from './components/Auth.jsx';
 
 
 function renderApp() {
-    routes.run((Root) => {
-        React.render(
-            <Root />,
-            document.getElementById('ReactApp')
-        );
-    });
+    let history = createHistory();
+    ReactDOM.render(
+        <Router history={history}>{routes}</Router>,
+        document.getElementById('ReactApp')
+    );
 }
 
 function renderAuth() {
-    React.render(
+    ReactDOM.render(
         <Auth />,
         document.getElementById('ReactApp')
     );

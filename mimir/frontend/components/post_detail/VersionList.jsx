@@ -26,8 +26,9 @@ class Version extends React.Component {
         if (!this.props.version.active) {
             actions.push((<li key="2"><a role="button" href="#" onClick={this.activateHandler()}>Activate</a></li>));
         }
+        const dest = `/admin/editor/${this.props.version.id}`;
         actions.push((<li key="3">
-            <Link to="version-editor" params={{id: this.props.version.id}}>Copy and Edit</Link>
+            <Link to={dest}>Copy and Edit</Link>
         </li>));
         return (
             <tr>

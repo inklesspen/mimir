@@ -13,7 +13,7 @@ class Thread extends React.Component {
         // TODO: make the thread id link to a thread-browsing page
         return (
             <tr>
-                <td><Link to="thread-page" params={{id: this.props.thread.id, page: 1}}>{this.props.thread.id}</Link></td>
+                <td><Link to={`/admin/threads/${this.props.thread.id}/page/1`}>{this.props.thread.id}</Link></td>
                 <td>{this.props.thread.page_count}</td>
                 <td><span className={classes}></span></td>
                 <td><ul className="list-inline">

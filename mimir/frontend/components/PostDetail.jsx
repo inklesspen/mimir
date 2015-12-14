@@ -6,15 +6,11 @@ import {PostOverview} from './post_detail/PostOverview.jsx';
 import {VersionList} from './post_detail/VersionList.jsx';
 
 export default class PostDetail extends React.Component {
-    static willTransitionTo(transition, params, query, callback) {
+    static onEnter(nextState, replaceState, callback) {
+        const params = nextState.params;
         const writeupId = parseInt(params.writeupId, 10);
         if (isNaN(writeupId)) {
             return callback(writeupId);
-        }
-        if (this.name === 'new-post') {
-            PostActions.clearPost();
-            callback();
-            return;
         }
         const postIndex = parseInt(params.postIndex, 10);
         if (isNaN(postIndex)) {

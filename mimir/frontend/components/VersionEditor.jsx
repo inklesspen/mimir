@@ -173,7 +173,8 @@ class VersionForm extends React.Component {
 
 
 export default class VersionEditor extends React.Component {
-    static willTransitionTo(transition, params, query, callback) {
+    static onEnter(nextState, replaceState, callback) {
+        const params = nextState.params;
         const wpvId = parseInt(params.id, 10);
         if (isNaN(wpvId)) {
             return callback(wpvId);

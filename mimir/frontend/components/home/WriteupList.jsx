@@ -16,9 +16,10 @@ class BoolCheckSpan extends React.Component {
 
 class Writeup extends React.Component {
     render() {
+        const dest = `/admin/writeup/${this.props.writeup.id}`;
         return (
             <tr>
-                <td><Link to="writeup-detail" params={{id: this.props.writeup.id}}>{this.props.writeup.title}</Link></td>
+                <td><Link to={dest}>{this.props.writeup.title}</Link></td>
                 <td>{this.props.writeup.author_slug}</td>
                 <td>{this.props.writeup.status}</td>
                 <td><BoolCheckSpan value={this.props.writeup.published} /></td>
@@ -41,12 +42,6 @@ export default class WriteupList extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><Link to="new-writeup">Add <span className="fa fa-lg fa-plus" aria-hidden="true"></span></Link></td>
-                        <td />
-                        <td />
-                        <td />
-                    </tr>
                 {this.props.writeups.map((writeup) => {
                     return (<Writeup key={writeup.id} writeup={writeup} />);
                  })}

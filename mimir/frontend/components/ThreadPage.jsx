@@ -82,8 +82,9 @@ class ThreadPost extends React.Component {
 
 class ThreadPosts extends React.Component {
     pageLink(num) {
+        const dest = `/admin/threads/${this.props.threadPage.thread_id}/page/${num}`;
         return (
-            <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: num}}>{num}</Link>
+            <Link to={dest}>{num}</Link>
         );
     }
     pagination() {
@@ -95,7 +96,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Previous">{leftArrowInner}</span></li>
         ) : (
             <li>
-                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: start}} ariaLabel="Previous">{leftArrowInner}</Link>
+                <Link to={`/admin/threads/${this.props.threadPage.thread_id}/page/${start}`} ariaLabel="First">{leftArrowInner}</Link>
             </li>
         );
         const rightArrowInner = (<span ariaHidden="true">»</span>);
@@ -103,7 +104,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Next">{rightArrowInner}</span></li>
         ) : (
             <li>
-                <Link to="thread-page" params={{id: this.props.threadPage.thread_id, page: finish}} ariaLabel="Next">{rightArrowInner}</Link>
+                <Link to={`/admin/threads/${this.props.threadPage.thread_id}/page/${finish}`} ariaLabel="Last">{rightArrowInner}</Link>
             </li>
         );
         const boxes = [];
@@ -157,7 +158,8 @@ class ThreadPosts extends React.Component {
 
 
 export class ThreadPage extends React.Component {
-    static willTransitionTo(transition, params, query, callback) {
+    static onEnter(nextState, replaceState, callback) {
+        const params = nextState.params;
         const threadId = parseInt(params.id, 10);
         if (isNaN(threadId)) {
             return callback(threadId);

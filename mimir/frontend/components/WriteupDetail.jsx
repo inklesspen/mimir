@@ -6,13 +6,8 @@ import {WriteupDetailStore} from '../stores/WriteupStore';
 import WriteupActions from '../actions/WriteupActions';
 
 export default class WriteupDetail extends React.Component {
-    static willTransitionTo(transition, params, query, callback) {
-        if (this.name === 'new-writeup') {
-            // no writeup to load
-            WriteupActions.clearWriteup();
-            callback();
-            return;
-        }
+    static onEnter(nextState, replaceState, callback) {
+        const params = nextState.params;
         // maybe would be better to use transition.abort() and transition.retry()
         const id = parseInt(params.id, 10);
         if (isNaN(id)) {
