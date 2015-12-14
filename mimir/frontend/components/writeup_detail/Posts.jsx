@@ -7,9 +7,10 @@ import {Link} from 'react-router';
 class Post extends React.Component {
     render() {
         const originalLink = this.props.post.url ? (<small>(<a href={this.props.post.url}>Original</a>)</small>) : null;
+        const title = this.props.post.title || '[Untitled]';
         return (
             <tr>
-                <td><Link to="post-detail" params={{writeupId: this.props.writeupId, postIndex: this.props.post.index}}>{this.props.post.title}</Link> {originalLink}</td>
+                <td><Link to="post-detail" params={{writeupId: this.props.writeupId, postIndex: this.props.post.index}}>{title}</Link> {originalLink}</td>
                 <td>{this.props.post.author}</td>
                 <td>{this.props.post.ordinal}</td>
             </tr>
