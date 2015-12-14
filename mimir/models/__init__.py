@@ -195,7 +195,8 @@ class WriteupPost(Base):
     published = Column(Boolean, nullable=False, default=False)
 
     versions = relationship("WriteupPostVersion", backref="writeup_post",
-                            cascade="all, delete-orphan")
+                            cascade="all, delete-orphan",
+                            order_by="WriteupPostVersion.version.desc()")
 
     active_version = relationship(
         "WriteupPostVersion",
