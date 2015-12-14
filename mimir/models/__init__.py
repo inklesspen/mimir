@@ -56,6 +56,17 @@ class AwareDateTime(TypeDecorator):
         return 'AwareDateTime()'
 
 
+class AuthorizedUser(Base):
+    email = Column(String(255), primary_key=True)
+
+    @classmethod
+    def check(cls, email, request):
+        query = request.db_session.query(cls).filter_by(email=email)
+        if query.one_or_none() is not None:
+            return []
+        return None
+
+
 class Credential(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(100), unique=True)

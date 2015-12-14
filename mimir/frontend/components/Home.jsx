@@ -13,6 +13,12 @@ export default class Home extends React.Component {
         WriteupStore.fetchWriteups();
         ExtractedStore.fetchExtractedPosts();
     }
+    logoutHandler() {
+        return (evt) => {
+            evt.preventDefault();
+            navigator.id.logout();
+        };
+    }
     render() {
         return (
             <div className="container">
@@ -21,6 +27,7 @@ export default class Home extends React.Component {
                         <ul className="nav bs-sidenav">
                             <li>Audit log stuff goes here</li>
                         </ul>
+                        <button type="button" onClick={this.logoutHandler()} className="btn btn-warning">Logout</button>
                     </div>
                 </div>
                 <div className="col-md-9" role="main">

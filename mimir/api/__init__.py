@@ -1,9 +1,15 @@
+import requests
+from pyramid.security import (
+    remember, forget,
+    Allow, Authenticated, DENY_ALL,
+)
 import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 from pyramid_rpc.jsonrpc import jsonrpc_method
 
 from ..models import (
     mallows,
+    AuthorizedUser,
     Thread,
     ThreadPage,
     ThreadPost,
@@ -16,6 +22,36 @@ from ..lib.extract import extract_post_from_wpv
 
 
 @jsonrpc_method(endpoint='api')
+def whoami(request):
+    return request.authenticated_userid
+
+
+@jsonrpc_method(endpoint='api')
+def login(request, assertion):
+    data = {'assertion': assertion, 'audience': 'http://dockerhost:8080/'}
+    resp = requests.post('https://verifier.login.persona.org/verify', data=data, verify=True)
+    if resp.ok:
+        verification_data = resp.json()
+        if verification_data['status'] == 'okay':
+            email = verification_data['email']
+            au = request.db_session.query(AuthorizedUser).filter_by(email=email).one_or_none()
+            if au is not None:
+                headers = remember(request, email)
+                response = request.response
+                response.headerlist.extend(headers)
+                return {'result': 'ok', 'email': email}
+    raise ValueError('Nope')
+
+
+@jsonrpc_method(endpoint='api')
+def logout(request):
+    headers = forget(request)
+    response = request.response
+    response.headerlist.extend(headers)
+    return {}
+
+
+@jsonrpc_method(endpoint='api', permission='admin')
 def thread_info(request):
     query = request.db_session.query(Thread).order_by(Thread.id.asc())
     return [{
@@ -25,7 +61,7 @@ def thread_info(request):
     } for t in query]
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def thread_page(request, thread_id, page_num):
     tp = request.db_session.query(ThreadPage)\
         .filter_by(thread_id=thread_id, page_num=page_num)\
@@ -40,7 +76,7 @@ def thread_page(request, thread_id, page_num):
     }
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def extracted_list(request):
     query = request.db_session.query(WriteupPostVersion)\
         .filter_by(writeup_post=None)\
@@ -49,7 +85,7 @@ def extracted_list(request):
     return schema.dump(query.all()).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def writeup_list(request):
     query = request.db_session.query(Writeup)\
         .order_by(Writeup.writeup_slug.asc(), Writeup.author_slug.asc())\
@@ -58,7 +94,7 @@ def writeup_list(request):
     return schema.dump(query.all()).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def writeup_detail(request, id):
     query = request.db_session.query(Writeup)\
         .filter(Writeup.id == id)\
@@ -67,7 +103,7 @@ def writeup_detail(request, id):
     return schema.dump(query.one()).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def save_writeup(request, writeup):
     if 'id' in writeup:
         obj = request.db_session.query(Writeup)\
@@ -88,7 +124,7 @@ def save_writeup(request, writeup):
     return schema.dump(obj).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def post_detail(request, writeup_id, post_index):
     query = request.db_session.query(WriteupPost)\
         .filter(WriteupPost.writeup_id == writeup_id)\
@@ -98,7 +134,7 @@ def post_detail(request, writeup_id, post_index):
     return schema.dump(query.one()).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def save_post(request, post):
     obj = request.db_session.query(WriteupPost).filter(WriteupPost.id == post['id']).one()
 
@@ -114,7 +150,7 @@ def save_post(request, post):
     return schema.dump(obj).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def activate_version(request, wpv_id):
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id).one()
     post = wpv.writeup_post
@@ -128,7 +164,7 @@ def activate_version(request, wpv_id):
     return schema.dump(wpv).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def get_wpv(request, wpv_id):
     query = request.db_session.query(WriteupPostVersion)\
         .filter_by(id=wpv_id)
@@ -136,7 +172,7 @@ def get_wpv(request, wpv_id):
     return schema.dump(query.one()).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def save_wpv(request, wpv_data):
     wp = request.db_session.query(WriteupPost).filter_by(id=wpv_data['writeuppost_id']).one()
     tp = request.db_session.query(ThreadPost).filter_by(id=wpv_data['threadpost_id']).one()
@@ -157,7 +193,7 @@ def save_wpv(request, wpv_data):
     return schema.dump(wpv).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def extract_post(request, thread_post_id):
     tp = request.db_session.query(ThreadPost).filter_by(id=thread_post_id).one()
     wpv = WriteupPostVersion(thread_post=tp, created_at=sa.func.now())
@@ -170,7 +206,7 @@ def extract_post(request, thread_post_id):
     return schema.dump(wpv).data
 
 
-@jsonrpc_method(endpoint='api')
+@jsonrpc_method(endpoint='api', permission='admin')
 def attach_extracted(request, wpv_id, target):
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
 
@@ -240,7 +276,17 @@ def say_hello(request, name):
     return "Hello, {}!".format(name)
 
 
+class AdminContext(object):
+    __acl__ = [
+        (Allow, Authenticated, 'admin'),
+        DENY_ALL
+    ]
+
+    def __init__(self, request):
+        pass
+
+
 def includeme(config):
     config.include('pyramid_rpc.jsonrpc')
-    config.add_jsonrpc_endpoint('api', '/api', default_renderer='json')
+    config.add_jsonrpc_endpoint('api', '/api', default_renderer='json', factory=AdminContext)
     config.scan()
