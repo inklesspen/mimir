@@ -42,6 +42,8 @@ class WriteupPostVersion(Schema):
     active = fields.Boolean()
     edit_summary = fields.String()
     author = fields.String(attribute='thread_post.author')
+    writeup_id = fields.Integer(attribute='writeup_post.writeup.id')
+    post_index = fields.Integer(attribute='writeup_post.index')
 
 
 class ThreadPost(Schema):

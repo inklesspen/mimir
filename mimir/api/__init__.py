@@ -273,7 +273,8 @@ def attach_extracted(request, wpv_id, target):
         wpv.active = True
         request.db_session.flush()
         schema = mallows.WriteupPostVersion()
-        return schema.dump(wpv).data
+        retval = schema.dump(wpv).data
+        return retval
     raise ValueError(result.errors)
 
 

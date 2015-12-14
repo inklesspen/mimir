@@ -3,6 +3,9 @@ import {Link} from 'react-router';
 import classNames from 'classnames';
 import jsonrpc from '../../util/jsonrpc';
 import Immutable from 'immutable';
+import {history} from '../../app-history';
+import ExtractedActions from '../../actions/ExtractedActions';
+
 
 function writeupLookupMapper(writeups) {
     const mapper = (key, value) => value.get('id').toString();
@@ -121,9 +124,7 @@ class ExtractedForm extends React.Component {
                 }
             }).toJSON();
             jsonrpc('attach_extracted', [this.props.post.id, target]).then((resp) => {
-                // now what? looks like we need the dumb Navigation mixin, or to upgrade
-                alert("It's done, but I can't redirect because dumb stuff. Reload the page.");
-                // We should redirect to the post-detail
+                history.pushState(null, `/admin/writeup/${resp.writeup_id}/post/${resp.post_index}`);
             });
         };
     }
@@ -132,8 +133,7 @@ class ExtractedForm extends React.Component {
         return (evt) => {
             evt.preventDefault();
             jsonrpc('delete_extracted', [this.props.post.id]).then(() => {
-                alert("It's done, but I can't redirect because dumb stuff. Reload the page.");
-                // We should redirect to the home page
+                ExtractedActions.fetchExtractedPosts();
             });
         };
     }
@@ -200,7 +200,6 @@ class ExtractedForm extends React.Component {
         );
     }
 }
-
 
 class ExtractedPost extends React.Component {
     constructor(props) {

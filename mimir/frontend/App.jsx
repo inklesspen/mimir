@@ -2,13 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Router} from 'react-router';
 import {routes} from './routes.jsx';
-import {createHistory} from 'history';
+import {history} from './app-history';
 import jsonrpc from './util/jsonrpc';
 import Auth from './components/Auth.jsx';
 
 
 function renderApp() {
-    let history = createHistory();
     ReactDOM.render(
         <Router history={history}>{routes}</Router>,
         document.getElementById('ReactApp')
