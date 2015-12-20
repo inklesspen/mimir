@@ -4,6 +4,7 @@ import WriteupOverview from './writeup_detail/WriteupOverview.jsx';
 import {PostList} from './writeup_detail/Posts.jsx';
 import {WriteupDetailStore} from '../stores/WriteupStore';
 import WriteupActions from '../actions/WriteupActions';
+import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
 
 export default class WriteupDetail extends React.Component {
     static onEnter(nextState, replaceState, callback) {
@@ -22,9 +23,15 @@ export default class WriteupDetail extends React.Component {
     }
 
     render() {
+        const title = WriteupDetailStore.state.detail.title;
         return (
             <div className="container">
                 <AltContainer store={WriteupDetailStore}>
+                    <Breadcrumbs>
+                        <Breadcrumb to="/admin/" title="Home" />
+                        <Breadcrumb active={true} title={`Writeup: ${title}`} />
+                    </Breadcrumbs>
+                    <hr />
                     <WriteupOverview />
                     <PostList />
                 </AltContainer>

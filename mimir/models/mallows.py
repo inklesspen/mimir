@@ -25,6 +25,7 @@ class WriteupPost(Schema):
     ordinal = fields.String()
     title = fields.String()
     published = fields.Boolean()
+    writeup_title = fields.String(attribute='writeup.title')
 
     versions = fields.Nested(
         'WriteupPostVersion',

@@ -4,6 +4,7 @@ import jsonrpc from '../util/jsonrpc';
 import classNames from 'classnames';
 import AltContainer from 'alt/AltContainer';
 import {ThreadPageStore} from '../stores/ThreadStore';
+import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
 
 const EXTRACT_WORKING = 'extract_working';
 const EXTRACT_DONE = 'extract_done';
@@ -177,9 +178,15 @@ export class ThreadPage extends React.Component {
     }
 
     render() {
+        const threadId = ThreadPageStore.state.threadPage.thread_id;
         return (
             <div className="container">
                 <AltContainer store={ThreadPageStore}>
+                    <Breadcrumbs>
+                        <Breadcrumb to="/admin/" title="Home" />
+                        <Breadcrumb active={true} title={`Thread #${threadId}`} />
+                    </Breadcrumbs>
+                    <hr />
                     <ThreadPosts />
                 </AltContainer>
             </div>

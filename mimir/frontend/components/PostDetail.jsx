@@ -4,6 +4,7 @@ import {PostStore} from '../stores/PostStore';
 import PostActions from '../actions/PostActions';
 import {PostOverview} from './post_detail/PostOverview.jsx';
 import {VersionList} from './post_detail/VersionList.jsx';
+import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
 
 export default class PostDetail extends React.Component {
     static onEnter(nextState, replaceState, callback) {
@@ -25,9 +26,18 @@ export default class PostDetail extends React.Component {
     }
 
     render() {
+        const writeupTitle = PostStore.state.post.writeup_title;
+        const writeupId = PostStore.state.post.writeup_id;
+        const title = PostStore.state.post.title;
         return (
             <div className="container">
                 <AltContainer store={PostStore}>
+                    <Breadcrumbs>
+                        <Breadcrumb to="/admin/" title="Home" />
+                        <Breadcrumb to={`/admin/writeup/${writeupId}`} title={`Writeup: ${writeupTitle}`} />
+                        <Breadcrumb active={true} title={`Post: ${title}`} />
+                    </Breadcrumbs>
+                    <hr />
                     <PostOverview routeParams={this.props.params} />
                     <VersionList routeParams={this.props.params} />
                 </AltContainer>
