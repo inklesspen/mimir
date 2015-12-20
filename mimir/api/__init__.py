@@ -10,6 +10,7 @@ from pyramid_rpc.jsonrpc import jsonrpc_method
 from ..models import (
     mallows,
     AuthorizedUser,
+    AuditEntry,
     Thread,
     ThreadPage,
     ThreadPost,
@@ -105,21 +106,20 @@ def writeup_detail(request, id):
 
 @jsonrpc_method(endpoint='api', permission='admin')
 def save_writeup(request, writeup):
-    if 'id' in writeup:
-        obj = request.db_session.query(Writeup)\
-            .filter(Writeup.id == writeup['id'])\
-            .one()
-        for unsettable in ['id', 'posts', 'author_slug', 'writeup_slug']:
-            if unsettable in writeup:
-                del writeup[unsettable]
-    else:
-        raise NotImplementedError("deprecated!")
-        # possibly this isn't quite right yet; we'll see
-        obj = Writeup()
-        request.db_session.add(obj)
+    obj = request.db_session.query(Writeup)\
+        .filter(Writeup.id == writeup['id'])\
+        .one()
+    for unsettable in ['id', 'posts', 'author_slug', 'writeup_slug']:
+        if unsettable in writeup:
+            del writeup[unsettable]
     for key, value in writeup.items():
         setattr(obj, key, value)
     request.db_session.flush()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="edited {!r}".format(obj))
+    request.db_session.add(audit)
     schema = mallows.Writeup()
     return schema.dump(obj).data
 
@@ -146,6 +146,11 @@ def save_post(request, post):
         setattr(obj, key, value)
 
     request.db_session.flush()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="edited {!r}".format(obj))
+    request.db_session.add(audit)
     schema = mallows.WriteupPost()
     return schema.dump(obj).data
 
@@ -160,6 +165,11 @@ def activate_version(request, wpv_id):
     wpv.active = True
 
     request.db_session.flush()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="activated {!r}".format(wpv))
+    request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
     return schema.dump(wpv).data
 
@@ -189,6 +199,11 @@ def save_wpv(request, wpv_data):
     wpv.edit_summary = wpv_data['edit_summary']
 
     request.db_session.flush()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="edited {!r}".format(wpv))
+    request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
     return schema.dump(wpv).data
 
@@ -202,6 +217,11 @@ def extract_post(request, thread_post_id):
         extract_post_from_wpv(request, wpv)
     wpv.edit_summary = "Extracted from post {}".format(tp.id)
     request.db_session.flush()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="created an extracted post from {!r}".format(tp))
+    request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
     return schema.dump(wpv).data
 
@@ -209,11 +229,17 @@ def extract_post(request, thread_post_id):
 @jsonrpc_method(endpoint='api', permission='admin')
 def delete_extracted(request, wpv_id):
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
+    audit = AuditEntry(
+        user=user, timestamp=sa.func.now(),
+        text="deleted an extracted post from {!r}".format(wpv.thread_post))
+    request.db_session.add(audit)
     request.db_session.delete(wpv)
 
 
 @jsonrpc_method(endpoint='api', permission='admin')
 def attach_extracted(request, wpv_id, target):
+    user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
     wpv = request.db_session.query(WriteupPostVersion).filter_by(id=wpv_id, writeup_post=None).one()
 
     schema = mallows.InputVersionExistingPost()
@@ -225,6 +251,10 @@ def attach_extracted(request, wpv_id, target):
 
         wp.versions.append(wpv)
         request.db_session.flush()
+        audit = AuditEntry(
+            user=user, timestamp=sa.func.now(),
+            text="attached {!r} to writeup".format(wpv))
+        request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
         return schema.dump(wpv).data
 
@@ -245,6 +275,10 @@ def attach_extracted(request, wpv_id, target):
         wp.versions.append(wpv)
         wpv.active = True
         request.db_session.flush()
+        audit = AuditEntry(
+            user=user, timestamp=sa.func.now(),
+            text="attached {!r} to writeup".format(wpv))
+        request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
         return schema.dump(wpv).data
 
@@ -272,6 +306,10 @@ def attach_extracted(request, wpv_id, target):
         wp.versions.append(wpv)
         wpv.active = True
         request.db_session.flush()
+        audit = AuditEntry(
+            user=user, timestamp=sa.func.now(),
+            text="attached {!r} to writeup".format(wpv))
+        request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
         retval = schema.dump(wpv).data
         return retval

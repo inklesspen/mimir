@@ -84,6 +84,8 @@ class AuditEntry(Base):
     text = Column(Unicode, nullable=False)
     timestamp = Column(AwareDateTime, nullable=False)
 
+    user = relationship('AuthorizedUser', uselist=False)
+
 
 class Thread(Base):
     # TODO: prevent a sequence from being made for this
@@ -136,6 +138,9 @@ class ThreadPost(Base):
 
     writeup_post_versions = relationship("WriteupPostVersion", backref="thread_post")
 
+    def __repr__(self):
+        return "<ThreadPost {self.id}: thread {self.thread_id} page {self.page.page_num}>".format(self=self)
+
     @property
     def url(self):
         return "{}#post{}".format(self.page.url, self.id)
@@ -175,6 +180,9 @@ class Writeup(Base):
         primaryjoin=("and_(Writeup.id == WriteupPost.writeup_id, "
                      "WriteupPost.published == true())"))
 
+    def __repr__(self):
+        return "<Writeup {self.id}: \"{self.title}>\"".format(self=self)
+
     @staticmethod
     def slugify(value):
         slug = value.lower()
@@ -207,6 +215,9 @@ class WriteupPost(Base):
         primaryjoin=("and_(WriteupPost.id == WriteupPostVersion.writeuppost_id, "
                      "WriteupPostVersion.active == true())"))
 
+    def __repr__(self):
+        return "<WriteupPost {self.id} of {self.writeup!r}: {self.index}, \"{self.title}\">".format(self=self)
+
 
 class WriteupPostVersion(Base):
     __table_args__ = (
@@ -227,6 +238,10 @@ class WriteupPostVersion(Base):
 
     def __html__(self):
         return self.html
+
+    def __repr__(self):
+        return ("<WriteupPostVersion {self.id} of {self.writeup_post!r}: "
+                "version {self.version}, active={self.active!r}>").format(self=self)
 
 
 class FetchedImage(Base):
