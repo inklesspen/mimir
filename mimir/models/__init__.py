@@ -57,7 +57,9 @@ class AwareDateTime(TypeDecorator):
 
 
 class AuthorizedUser(Base):
-    email = Column(String(255), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True)
+    name = Column(Unicode, nullable=False)
 
     @classmethod
     def check(cls, email, request):
@@ -78,7 +80,7 @@ class Credential(Base):
 class AuditEntry(Base):
     __tablename__ = 'audit_entries'
     id = Column(Integer, primary_key=True)
-    credential_id = Column(Integer, ForeignKey('credentials.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('authorized_users.id'), nullable=False)
     text = Column(Unicode, nullable=False)
     timestamp = Column(AwareDateTime, nullable=False)
 
