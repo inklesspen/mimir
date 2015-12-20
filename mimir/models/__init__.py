@@ -115,7 +115,7 @@ class ThreadPage(Base):
     # TODO: add timezone here
     # TODO: allow multiple fetches, generally only caring about the latest one
     # but keeping the rest around just in case?
-    posts = relationship("ThreadPost", backref="page")
+    posts = relationship("ThreadPost", backref="page", order_by='ThreadPost.id')
     fetched_with = relationship("Credential", uselist=False)
 
     @property
