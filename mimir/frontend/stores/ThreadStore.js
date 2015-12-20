@@ -4,20 +4,20 @@ import ThreadActions from '../actions/ThreadActions';
 
 class ThreadStore {
   constructor() {
-    this.threads = [];
+    this.threadInfo = {};
     this.exportAsync(ThreadSource);
     this.bindListeners({
-      handleUpdateThreads: ThreadActions.UPDATE_THREADS,
-      threadsLoading: ThreadActions.FETCH_THREADS
+      handleUpdateThreadInfo: ThreadActions.UPDATE_THREAD_INFO,
+      threadInfoLoading: ThreadActions.FETCH_THREAD_INFO
     });
   }
 
-  handleUpdateThreads(threads) {
-    this.threads = threads;
+  handleUpdateThreadInfo(threadInfo) {
+    this.threadInfo = threadInfo;
   }
 
-  threadsLoading() {
-    this.threads = [];
+  threadInfoLoading() {
+    this.threadInfo = {};
   }
 }
 

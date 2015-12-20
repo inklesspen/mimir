@@ -9,8 +9,8 @@ class Thread extends React.Component {
             "fa", "fa-lg",
             (this.props.thread.closed ? "fa-square-o" : "fa-check-square-o"),
         );
-        var threadUrl = `http://forums.somethingawful.com/showthread.php?threadid=${this.props.thread.id}`;
-        // TODO: make the thread id link to a thread-browsing page
+        const threadUrl = `http://forums.somethingawful.com/showthread.php?threadid=${this.props.thread.id}`;
+        const lepLink = this.props.lastPost ? (<li><Link to={`/admin/threads/${this.props.thread.id}/page/${this.props.lastPost.page_num}`}>Last Extracted</Link></li>) : null;
         return (
             <tr>
                 <td><Link to={`/admin/threads/${this.props.thread.id}/page/1`}>{this.props.thread.id}</Link></td>
@@ -19,6 +19,7 @@ class Thread extends React.Component {
                 <td><ul className="list-inline">
                     <li>Mark Open/Closed (TODO)</li>
                     <li><a href={threadUrl}>Visit on SA</a></li>
+                    {lepLink}
                 </ul></td>
             </tr>
         );
@@ -28,6 +29,8 @@ class Thread extends React.Component {
 
 export default class ThreadList extends React.Component {
     render() {
+        const threads = this.props.threadInfo.threads ? this.props.threadInfo.threads : [];
+        const lep = this.props.threadInfo.last_extracted_post;
         return (
             <table className="table table-striped table-hover">
                 <thead>
@@ -39,8 +42,8 @@ export default class ThreadList extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                {this.props.threads.map((thread) => {
-                    return (<Thread key={thread.id} thread={thread} />);
+                {threads.map((thread) => {
+                    return (<Thread key={thread.id} thread={thread} lastPost={thread.id === lep.thread_id ? lep : null} />);
                  })}
                 </tbody>
             </table>

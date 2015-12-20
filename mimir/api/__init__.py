@@ -55,11 +55,20 @@ def logout(request):
 @jsonrpc_method(endpoint='api', permission='admin')
 def thread_info(request):
     query = request.db_session.query(Thread).order_by(Thread.id.asc())
-    return [{
-        'id': t.id,
-        'page_count': t.page_count,
-        'closed': t.closed,
-    } for t in query]
+    max_tp = request.db_session.query(sa.func.max(WriteupPostVersion.threadpost_id)).scalar()
+    tp = request.db_session.query(ThreadPost).filter_by(id=max_tp).one()
+    return {
+        'threads': [{
+            'id': t.id,
+            'page_count': t.page_count,
+            'closed': t.closed,
+            } for t in query],
+        'last_extracted_post': {
+            'thread_id': tp.page.thread.id,
+            'page_num': tp.page.page_num,
+            'post_id': tp.id,
+        }
+    }
 
 
 @jsonrpc_method(endpoint='api', permission='admin')

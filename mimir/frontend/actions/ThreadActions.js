@@ -1,11 +1,11 @@
 import alt from '../altInstance';
 
 class ThreadActions {
-  fetchThreads() {
+  fetchThreadInfo() {
     this.dispatch();
   }
-  updateThreads(threads) {
-    this.dispatch(threads);
+  updateThreadInfo(threadInfo) {
+    this.dispatch(threadInfo);
   }
   fetchFailed(message) {
     this.dispatch(message);

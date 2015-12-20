@@ -9,7 +9,7 @@ import ExtractedStore from '../stores/ExtractedStore';
 
 export default class Home extends React.Component {
     componentDidMount() {
-        ThreadStore.fetchThreads();
+        ThreadStore.fetchThreadInfo();
         WriteupStore.fetchWriteups();
         ExtractedStore.fetchExtractedPosts();
     }

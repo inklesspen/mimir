@@ -2,7 +2,7 @@ import ThreadActions from '../actions/ThreadActions';
 import jsonrpc from '../util/jsonrpc';
 
 export default {
-  fetchThreads() {
+  fetchThreadInfo() {
     return {
       remote() {
         return jsonrpc('thread_info', []);
@@ -11,11 +11,11 @@ export default {
         return null;
       },
       // propagates threads to the store
-      success: ThreadActions.updateThreads,
+      success: ThreadActions.updateThreadInfo,
       // propagates error message
       error: ThreadActions.fetchFailed,
       // triggers store to prepare for the threads update
-      loading: ThreadActions.fetchThreads
+      loading: ThreadActions.fetchThreadInfo
     };
   }
 };
