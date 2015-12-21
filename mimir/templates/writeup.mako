@@ -3,6 +3,12 @@
 <div class="page-header">
   <h1>${writeup.title} <small>by ${writeup.posts[0].author}</small></h1>
 </div>
+% if writeup.offensive_content:
+<img class="contentwarning" src="${request.static_url('mimir:static/gross.png')}" alt="This RPG is pretty gross.">
+% endif
+% if writeup.triggery_content:
+<img class="contentwarning" src="${request.static_url('mimir:static/triggery.png')}" alt="This RPG may trigger some people.">
+% endif
 
 <div class="row post-toc">
   <div class="col-md-8">
