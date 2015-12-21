@@ -5,6 +5,9 @@ import {PostList} from './writeup_detail/Posts.jsx';
 import {WriteupDetailStore} from '../stores/WriteupStore';
 import WriteupActions from '../actions/WriteupActions';
 import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
+import appdata from '../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 export default class WriteupDetail extends React.Component {
     static onEnter(nextState, replaceState, callback) {
@@ -28,7 +31,7 @@ export default class WriteupDetail extends React.Component {
             <div className="container">
                 <AltContainer store={WriteupDetailStore}>
                     <Breadcrumbs>
-                        <Breadcrumb to="/admin/" title="Home" />
+                        <Breadcrumb to={applyRoot('')} title="Home" />
                         <Breadcrumb active={true} title={`Writeup: ${title}`} />
                     </Breadcrumbs>
                     <hr />

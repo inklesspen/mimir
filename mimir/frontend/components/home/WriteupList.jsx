@@ -1,6 +1,9 @@
 import React from 'react';
 import {Link} from 'react-router';
 import classNames from 'classnames';
+import appdata from '../../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 
 class BoolCheckSpan extends React.Component {
@@ -16,7 +19,7 @@ class BoolCheckSpan extends React.Component {
 
 class Writeup extends React.Component {
     render() {
-        const dest = `/admin/writeup/${this.props.writeup.id}`;
+        const dest = applyRoot(`writeup/${this.props.writeup.id}`);
         return (
             <tr>
                 <td><Link to={dest}>{this.props.writeup.title}</Link></td>

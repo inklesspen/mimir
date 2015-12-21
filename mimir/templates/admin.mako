@@ -1,3 +1,4 @@
+<%! import json %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -25,6 +26,9 @@
 
     <body>
       <div id="ReactApp"></div>
+      <script type="text/javascript">
+        var mimirData = ${bootstrap | n, json.dumps};
+      </script>
       <script src="https://login.persona.org/include.js"></script>
       <script src="${request.static_path('mimir:static/mimir.js')}"></script>
     </body>

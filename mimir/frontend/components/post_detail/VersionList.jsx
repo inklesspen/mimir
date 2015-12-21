@@ -3,6 +3,9 @@ import classNames from 'classnames';
 import {Link} from 'react-router';
 import jsonrpc from '../../util/jsonrpc';
 import {PostStore} from '../../stores/PostStore';
+import appdata from '../../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 class Version extends React.Component {
     activateHandler() {
@@ -26,7 +29,7 @@ class Version extends React.Component {
         if (!this.props.version.active) {
             actions.push((<li key="2"><a role="button" href="#" onClick={this.activateHandler()}>Activate</a></li>));
         }
-        const dest = `/admin/editor/${this.props.version.id}`;
+        const dest = applyRoot(`editor/${this.props.version.id}`);
         actions.push((<li key="3">
             <Link to={dest}>Copy and Edit</Link>
         </li>));

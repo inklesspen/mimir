@@ -5,6 +5,7 @@ import {routes} from './routes.jsx';
 import {history} from './app-history';
 import jsonrpc from './util/jsonrpc';
 import Auth from './components/Auth.jsx';
+import appdata from './appdata';
 
 
 function renderApp() {
@@ -29,7 +30,7 @@ function render(whoami) {
     }
 }
 
-jsonrpc('whoami', []).then((whoami) => {
+Promise.resolve(appdata.get('whoami')).then((whoami) => {
     navigator.id.watch({
         loggedInUser: whoami,
         onlogin: (assertion) => {

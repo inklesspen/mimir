@@ -3,12 +3,15 @@ import classNames from 'classnames';
 import Immutable from 'immutable';
 import WriteupActions from '../../actions/WriteupActions';
 import {Link} from 'react-router';
+import appdata from '../../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 class Post extends React.Component {
     render() {
         const originalLink = this.props.post.url ? (<small>(<a href={this.props.post.url}>Original</a>)</small>) : null;
         const title = this.props.post.title || '[Untitled]';
-        const dest = `/admin/writeup/${this.props.writeupId}/post/${this.props.post.index}`;
+        const dest = applyRoot(`writeup/${this.props.writeupId}/post/${this.props.post.index}`);
         return (
             <tr>
                 <td><Link to={dest}>{title}</Link> {originalLink}</td>

@@ -5,6 +5,9 @@ import jsonrpc from '../../util/jsonrpc';
 import Immutable from 'immutable';
 import {history} from '../../app-history';
 import ExtractedActions from '../../actions/ExtractedActions';
+import appdata from '../../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 
 function writeupLookupMapper(writeups) {
@@ -124,7 +127,7 @@ class ExtractedForm extends React.Component {
                 }
             }).toJSON();
             jsonrpc('attach_extracted', [this.props.post.id, target]).then((resp) => {
-                history.pushState(null, `/admin/writeup/${resp.writeup_id}/post/${resp.post_index}`);
+                history.pushState(null, applyRoot(`writeup/${resp.writeup_id}/post/${resp.post_index}`));
             });
         };
     }

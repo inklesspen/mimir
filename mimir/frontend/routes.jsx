@@ -5,6 +5,7 @@ import WriteupDetail from './components/WriteupDetail.jsx';
 import PostDetail from './components/PostDetail.jsx';
 import VersionEditor from './components/VersionEditor.jsx';
 import {ThreadPage} from './components/ThreadPage.jsx';
+import appdata from './appdata';
 
 /*
  * /
@@ -15,7 +16,7 @@ import {ThreadPage} from './components/ThreadPage.jsx';
  */
 
 export var routes = (
-  <Route path="/admin/">
+  <Route path={appdata.get('rootUrl')}>
       <IndexRoute component={Home} />
       <Route component={ThreadPage} onEnter={ThreadPage.onEnter} path="threads/:id/page/:page" />
       <Route component={WriteupDetail} onEnter={WriteupDetail.onEnter} path="writeup/:id" />

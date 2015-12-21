@@ -42,7 +42,11 @@ def writeup(request):
 @view_config(route_name='admin', renderer='mimir:templates/admin.mako')
 def admin(request):
     return {
-        'iframeDevtools': request.registry.settings['mimir.react_iframe_devtools']
+        'iframeDevtools': request.registry.settings['mimir.react_iframe_devtools'],
+        'bootstrap': {
+            'root_url': request.route_path('admin', path=''),
+            'whoami': request.authenticated_userid,
+        },
     }
 
 

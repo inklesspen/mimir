@@ -5,6 +5,9 @@ import PostActions from '../actions/PostActions';
 import {PostOverview} from './post_detail/PostOverview.jsx';
 import {VersionList} from './post_detail/VersionList.jsx';
 import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
+import appdata from '../appdata';
+
+const applyRoot = appdata.get('applyRoot');
 
 export default class PostDetail extends React.Component {
     static onEnter(nextState, replaceState, callback) {
@@ -33,8 +36,8 @@ export default class PostDetail extends React.Component {
             <div className="container">
                 <AltContainer store={PostStore}>
                     <Breadcrumbs>
-                        <Breadcrumb to="/admin/" title="Home" />
-                        <Breadcrumb to={`/admin/writeup/${writeupId}`} title={`Writeup: ${writeupTitle}`} />
+                        <Breadcrumb to={applyRoot('')} title="Home" />
+                        <Breadcrumb to={applyRoot(`writeup/${writeupId}`)} title={`Writeup: ${writeupTitle}`} />
                         <Breadcrumb active={true} title={`Post: ${title}`} />
                     </Breadcrumbs>
                     <hr />

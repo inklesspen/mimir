@@ -5,7 +5,9 @@ import classNames from 'classnames';
 import AltContainer from 'alt/AltContainer';
 import {ThreadPageStore} from '../stores/ThreadStore';
 import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
+import appdata from '../appdata';
 
+const applyRoot = appdata.get('applyRoot');
 const EXTRACT_WORKING = 'extract_working';
 const EXTRACT_DONE = 'extract_done';
 
@@ -83,7 +85,7 @@ class ThreadPost extends React.Component {
 
 class ThreadPosts extends React.Component {
     pageLink(num) {
-        const dest = `/admin/threads/${this.props.threadPage.thread_id}/page/${num}`;
+        const dest = applyRoot(`threads/${this.props.threadPage.thread_id}/page/${num}`);
         return (
             <Link to={dest}>{num}</Link>
         );
@@ -97,7 +99,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Previous">{leftArrowInner}</span></li>
         ) : (
             <li>
-                <Link to={`/admin/threads/${this.props.threadPage.thread_id}/page/${start}`} ariaLabel="First">{leftArrowInner}</Link>
+                <Link to={applyRoot(`threads/${this.props.threadPage.thread_id}/page/${start}`)} ariaLabel="First">{leftArrowInner}</Link>
             </li>
         );
         const rightArrowInner = (<span ariaHidden="true">»</span>);
@@ -105,7 +107,7 @@ class ThreadPosts extends React.Component {
             <li className="disabled"><span ariaLabel="Next">{rightArrowInner}</span></li>
         ) : (
             <li>
-                <Link to={`/admin/threads/${this.props.threadPage.thread_id}/page/${finish}`} ariaLabel="Last">{rightArrowInner}</Link>
+                <Link to={applyRoot(`threads/${this.props.threadPage.thread_id}/page/${finish}`)} ariaLabel="Last">{rightArrowInner}</Link>
             </li>
         );
         const boxes = [];
@@ -183,7 +185,7 @@ export class ThreadPage extends React.Component {
             <div className="container">
                 <AltContainer store={ThreadPageStore}>
                     <Breadcrumbs>
-                        <Breadcrumb to="/admin/" title="Home" />
+                        <Breadcrumb to={applyRoot('')} title="Home" />
                         <Breadcrumb active={true} title={`Thread #${threadId}`} />
                     </Breadcrumbs>
                     <hr />
