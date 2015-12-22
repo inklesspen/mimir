@@ -13,3 +13,9 @@
     cursor: pointer;
     box-shadow: none;
 }
+img.collapsable {
+    cursor: zoom-out;
+}
+img.collapsable.collapsed {
+    cursor: zoom-in;
+}

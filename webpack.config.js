@@ -1,6 +1,7 @@
 var path = require('path');
 
 var sourcePath = path.join(__dirname, 'mimir', 'frontend');
+var publicSourcePath = path.join(__dirname, 'mimir', 'lib', 'js');
 var assetsPath = path.join(__dirname, 'mimir', 'static');
 var publicPath = '/static/';
 
@@ -15,7 +16,7 @@ var commonLoaders = [
   {
     test: /\.js$/,
     loader: "babel-loader?stage=0",
-    include: sourcePath
+    include: [sourcePath, publicSourcePath]
   },
   { test: /\.png$/, loader: "url-loader" },
   { test: /\.jpg$/, loader: "file-loader" },
@@ -24,13 +25,16 @@ var commonLoaders = [
 
 module.exports = {
     // context: sourcePath,
-    entry: path.join(sourcePath, "./App.jsx"),
+    entry: {
+      mimir: path.join(sourcePath, "./App.jsx"),
+      public: path.join(publicSourcePath, './main.js')
+    },
 
     output: {
       // The output directory as absolute path
       path: assetsPath,
       // The filename of the entry chunk as relative path inside the output.path directory
-      filename: 'mimir.js',
+      filename: '[name].js',
       // The output path from the view of the Javascript
       publicPath: publicPath
 
@@ -45,7 +49,7 @@ module.exports = {
     },
     resolve: {
       modulesDirectories: [
-        sourcePath, "node_modules"
+        sourcePath, publicSourcePath, "node_modules"
       ]
     },
     devServer: {

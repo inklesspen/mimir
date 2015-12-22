@@ -9,10 +9,8 @@
 </head>
 <body>
     <div class="container">
-<p>
-These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some of them are obscure RPGs. Some of them are very bad RPGs.
-</p>
 ${self.body()}
     </div>
+    <script src="${request.static_path('mimir:static/public.js')}"></script>
 </body>
 </html>

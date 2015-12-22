@@ -1,4 +1,7 @@
 <%inherit file="base.mako"/>
+<p>
+These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some of them are obscure RPGs. Some of them are very bad RPGs.
+</p>
       <table class="table table-hover">
         <thead>
           <tr>
