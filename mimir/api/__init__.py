@@ -220,11 +220,11 @@ def save_wpv(request, wpv_data):
 @jsonrpc_method(endpoint='api', permission='admin')
 def extract_post(request, thread_post_id):
     tp = request.db_session.query(ThreadPost).filter_by(id=thread_post_id).one()
-    wpv = WriteupPostVersion(thread_post=tp, created_at=sa.func.now())
+    wpv = WriteupPostVersion(
+        thread_post=tp, created_at=sa.func.now(),
+        edit_summary="Extracted from post {}".format(tp.id))
     request.db_session.add(wpv)
-    with request.db_session.no_autoflush:
-        extract_post_from_wpv(request, wpv)
-    wpv.edit_summary = "Extracted from post {}".format(tp.id)
+    extract_post_from_wpv(request, wpv)
     request.db_session.flush()
     user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
     audit = AuditEntry(
