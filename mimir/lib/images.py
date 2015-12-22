@@ -24,7 +24,7 @@ class CantConnect(MirrorError):
 
 def mirror_image(request, img_tag, referer):
     did_fetch = False
-    if 'data-mirrored' in img_tag:
+    if 'data-mirrored' in img_tag.attrs:
         img_src = img_tag['data-orig-src']
     else:
         img_src = img_tag['src']
@@ -34,6 +34,7 @@ def mirror_image(request, img_tag, referer):
         address = request.hashfs.get(prefetched.id)
         if address is None:
             request.db_session.delete(prefetched)
+            prefetched = None
         else:
             img = Image.open(request.hashfs.open(address.id))
     if prefetched is None:

@@ -6,7 +6,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 
 def request_hashfs(request):
     path = request.registry.settings['hashfs']['location']
-    fs = hashfs.HashFS(path, depth=3, width=2, algorithm='sha256')
+    fs = hashfs.HashFS(path, depth=2, width=3, algorithm='sha256')
     return fs
 
 

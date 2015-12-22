@@ -1,11 +1,17 @@
 import bs4
-from ..models import WriteupPostVersion as WPV
 from .images import mirror_image, MirrorError
 from urllib.parse import urljoin
 import time
 
 
-def extract_post(request, wpv_id, self_html=False, sleep_between=False):
+def find_container(soup):
+    body_tags = soup.body.find_all(lambda el: isinstance(el, bs4.element.Tag), recursive=False)
+    if len(body_tags) == 1 and body_tags[0].name == 'div':
+        return soup.body.div
+    return soup.body
+
+
+def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     """
     1) soupify
     2) mirror all images
@@ -15,11 +21,6 @@ def extract_post(request, wpv_id, self_html=False, sleep_between=False):
     4) add rel=nofollow to links
     """
 
-    wpv = request.db_session.query(WPV).filter_by(id=wpv_id).one()
-    return extract_post_from_wpv(request, wpv, self_html, sleep_between)
-
-
-def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     if self_html:
         html = wpv.html
     else:
@@ -43,6 +44,7 @@ def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
         a_tag['href'] = urljoin(wpv.thread_post.url, a_tag['href'])
         a_tag['rel'] = 'nofollow'
 
-    div = soup.div.extract()
-    div.hidden = True
-    wpv.html = div.prettify(formatter="html")
+    container = find_container(soup)
+    container = container.extract()
+    container.hidden = True
+    wpv.html = container.prettify(formatter="html")
