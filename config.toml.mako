@@ -32,6 +32,10 @@ use = "egg:mimir#main"
 
 "sqlalchemy.url" = "postgresql://postgres@${environ['POSTGRES_PORT_5432_TCP_ADDR']}:${environ['POSTGRES_PORT_5432_TCP_PORT']}/postgres"
 
+% if 'GA_TRACKING_ID' in environ:
+"ga.tracking_id" = "${environ['GA_TRACKING_ID']}"
+% endif
+
 [server.development]
 port = "6543"
 host = "0.0.0.0"
