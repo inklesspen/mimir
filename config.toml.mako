@@ -30,7 +30,7 @@ use = "egg:mimir#main"
 
 "mimir.react_iframe_devtools" = false
 
-"sqlalchemy.url" = "postgresql://postgres@${environ['POSTGRES_PORT_5432_TCP_ADDR']}:${environ['POSTGRES_PORT_5432_TCP_PORT']}/postgres"
+"sqlalchemy.url" = "postgresql://postgres:${environ.get('POSTGRES_PASSWORD', '')}@${environ['POSTGRES_PORT_5432_TCP_ADDR']}:${environ['POSTGRES_PORT_5432_TCP_PORT']}/postgres"
 
 % if 'GA_TRACKING_ID' in environ:
 "ga.tracking_id" = "${environ['GA_TRACKING_ID']}"
