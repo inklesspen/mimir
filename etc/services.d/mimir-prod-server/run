@@ -1,5 +1,9 @@
 #!/usr/bin/with-contenv sh
 
 cd /code
+# this is a workaround; otherwise, webpack needs to put the output in /usr/local/lib/python3.4/site-packages/mimir/static/
+# which is a path which may change in the future
+# possibly i can have the path calculated and added to the environ
+pip install -e .
 /node_modules/.bin/webpack
 exec mserve --app-name production --server-name production --logging-config production config.toml.mako

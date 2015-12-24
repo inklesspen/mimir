@@ -26,7 +26,7 @@ use = "egg:mimir#main"
 "pyramid.debug_notfound" = "false"
 "pyramid.debug_routematch" = "false"
 "pyramid.default_locale_name" = "en"
-"pyramid.includes" = ["pyramid_tm"]
+"pyramid.includes" = ["pyramid_tm", "pyramid_exclog"]
 
 "mimir.react_iframe_devtools" = false
 
@@ -35,6 +35,9 @@ use = "egg:mimir#main"
 % if 'GA_TRACKING_ID' in environ:
 "ga.tracking_id" = "${environ['GA_TRACKING_ID']}"
 % endif
+
+[application.production.hashfs]
+location = "/data/hashfs"
 
 [server.development]
 port = "6543"
@@ -111,3 +114,23 @@ handlers = ["console"]
 
 [logging.production.formatters.generic]
 format = "%(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s"
+
+% if 'EXC_SMTP_HOST' in environ:
+[logging.production.handlers.exc_handler]
+class = "logging.handlers.SMTPHandler"
+level = "ERROR"
+formatter = "exc_formatter"
+mailhost = ["${environ['EXC_SMTP_HOST']}", "${environ['EXC_SMTP_PORT']}"]
+subject = "mimir Exception"
+fromaddr = "${environ['EXC_SMTP_ADDR']}"
+toaddrs = ["${environ['EXC_SMTP_ADDR']}"]
+secure = []
+credentials = ["${environ['EXC_SMTP_USERNAME']}", "${environ['EXC_SMTP_PASSWORD']}"]
+
+[logging.production.loggers.exc_logger]
+level = "ERROR"
+handlers = ["exc_handler"]
+
+[logging.production.formatters.exc_formatter]
+format = "%(asctime)s %(message)s"
+% endif
