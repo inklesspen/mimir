@@ -48,6 +48,9 @@ use = "egg:waitress#main"
 port = "8080"
 host = "0.0.0.0"
 use = "egg:waitress#main"
+% if 'URL_PREFIX' in environ:
+url_prefix = "${environ['URL_PREFIX']}"
+% endif
 
 [logging.development]
 version = 1
