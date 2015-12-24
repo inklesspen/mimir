@@ -15,6 +15,9 @@ use = "egg:mimir#main"
 
 "mimir.react_iframe_devtools" = true
 
+"authtkt_secret" = "${environ['AUTHTKT_SECRET']}"
+"persona_audience" = "${environ['PERSONA_AUDIENCE']}"
+
 [application.development.hashfs]
 location = "/data/hashfs"
 
@@ -35,6 +38,9 @@ use = "egg:mimir#main"
 % if 'GA_TRACKING_ID' in environ:
 "ga.tracking_id" = "${environ['GA_TRACKING_ID']}"
 % endif
+
+"authtkt_secret" = "${environ['AUTHTKT_SECRET']}"
+"persona_audience" = "${environ['PERSONA_AUDIENCE']}"
 
 [application.production.hashfs]
 location = "/data/hashfs"

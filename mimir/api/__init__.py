@@ -29,7 +29,8 @@ def whoami(request):
 
 @jsonrpc_method(endpoint='api')
 def login(request, assertion):
-    data = {'assertion': assertion, 'audience': 'http://dockerhost:8080/'}
+    audience = request.registry.settings['persona_audience']
+    data = {'assertion': assertion, 'audience': audience}
     resp = requests.post('https://verifier.login.persona.org/verify', data=data, verify=True)
     if resp.ok:
         verification_data = resp.json()

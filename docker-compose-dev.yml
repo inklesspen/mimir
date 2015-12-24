@@ -9,6 +9,8 @@ web:
   environment:
     - S6_SERVICE_WHITELIST=webpack-dev-server mimir-dev-server cron
     - WORKER_ENV=development
+    - PERSONA_AUDIENCE=http://dockerhost:8080/
+    - AUTHTKT_SECRET=I am a big dumb stupid
   volumes_from:
     - data
 postgres:
