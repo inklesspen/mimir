@@ -5,6 +5,7 @@ const bootstrapped = window.mimirData;
 
 export default Immutable.Map([
   ["rootUrl", bootstrapped['root_url']],
+  ["apiUrl", bootstrapped['api_url']],
   ["applyRoot", (url) => {
     url = (url ? url : '');
     url = (url[0] === "/" ? url.substr(1) : url);

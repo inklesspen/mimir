@@ -1,6 +1,7 @@
 import axios from 'axios';
+import appdata from '../appdata';
 
-const apiUrl = '/api';
+const apiUrl = appdata.get('apiUrl');
 
 let idCounter = 1;
 

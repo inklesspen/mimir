@@ -45,6 +45,7 @@ def admin(request):
         'iframeDevtools': request.registry.settings['mimir.react_iframe_devtools'],
         'bootstrap': {
             'root_url': request.route_path('admin', path=''),
+            'api_url': request.route_path('api'),
             'whoami': request.authenticated_userid,
         },
     }
