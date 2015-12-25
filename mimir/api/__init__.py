@@ -214,6 +214,10 @@ def save_wpv(request, wpv_data):
     wpv.edit_summary = wpv_data['edit_summary']
 
     request.db_session.flush()
+
+    # reprocess images
+    extract_post_from_wpv(request, wpv, self_html=True)
+
     user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
     audit = AuditEntry(
         user=user, timestamp=sa.func.now(),
