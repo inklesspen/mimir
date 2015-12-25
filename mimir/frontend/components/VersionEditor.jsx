@@ -4,7 +4,9 @@ import {VersionStore} from '../stores/VersionStore';
 import VersionActions from '../actions/VersionActions';
 import Immutable from 'immutable';
 import classNames from 'classnames';
+import appdata from '../appdata';
 
+const SQUIRE_PATH = appdata.get('squireUrl');
 
 const formRowWrapper = function(htmlFor, label, elem) {
     const labelEl = label ? (<label className="control-label" htmlFor={htmlFor}>{label}</label>) : null;
@@ -45,9 +47,6 @@ class FormTextArea extends React.Component {
     }
 }
 
-
-// TODO: find a way to not have to hardcode this
-const SQUIRE_PATH = "/static/squire/document.html";
 
 class SquireEditor extends React.Component {
     constructor(props) {

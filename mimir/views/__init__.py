@@ -46,6 +46,7 @@ def admin(request):
         'bootstrap': {
             'root_url': request.route_path('admin', path=''),
             'api_url': request.route_path('api'),
+            'squire_url': request.static_path('mimir:static/squire/document.html'),
             'whoami': request.authenticated_userid,
         },
     }
