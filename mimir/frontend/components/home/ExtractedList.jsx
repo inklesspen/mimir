@@ -149,7 +149,9 @@ class ExtractedForm extends React.Component {
                 <option value="w">New Writeup</option>
                 <option value="--2" disabled="disabled">--</option>
                 {this.props.writeups.map((writeup) => {
-                    return (<option key={writeup.id} value={writeup.id}>{writeup.title} - {writeup.author_slug} - {writeup.status}</option>);
+                    // This works around a weird issue in react-devtools. see https://github.com/facebook/react-devtools/issues/248
+                    let optText = `${writeup.title} - ${writeup.author_slug} - ${writeup.status}`;
+                    return (<option key={writeup.id} value={writeup.id}>{optText}</option>);
                  })}
             </FormSelect>
         );
@@ -162,7 +164,8 @@ class ExtractedForm extends React.Component {
                 <option value="wp">New Post</option>
                 <option value="--2" disabled="disabled">--</option>
                 {wps.map((wp) => {
-                    return (<option key={wp.index} value={wp.index}>{wp.ordinal} - {wp.title} - {wp.author}</option>);
+                    let optText = `${wp.ordinal} - ${wp.title} - ${wp.author}`;
+                    return (<option key={wp.index} value={wp.index}>{optText}</option>);
                  })}
             </FormSelect>
         );
