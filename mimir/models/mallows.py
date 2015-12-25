@@ -37,7 +37,7 @@ class WriteupPostVersion(Schema):
     id = fields.Integer()
     writeuppost_id = fields.Integer()
     threadpost_id = fields.Integer()
-    html = fields.String()
+    html = fields.Method('html_with_fixed_image_urls')
     created_at = fields.DateTime()
     version = fields.Integer()
     active = fields.Boolean()
@@ -45,6 +45,9 @@ class WriteupPostVersion(Schema):
     author = fields.String(attribute='thread_post.author')
     writeup_id = fields.Integer(attribute='writeup_post.writeup.id')
     post_index = fields.Integer(attribute='writeup_post.index')
+
+    def html_with_fixed_image_urls(self, obj):
+        return obj.html_with_fixed_image_urls(self.context['request'])
 
 
 class ThreadPost(Schema):

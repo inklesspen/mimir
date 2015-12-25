@@ -93,6 +93,7 @@ def extracted_list(request):
         .filter_by(writeup_post=None)\
         .order_by(WriteupPostVersion.id.asc())
     schema = mallows.WriteupPostVersion(many=True)
+    schema.context = {'request': request}
     return schema.dump(query.all()).data
 
 
@@ -141,6 +142,7 @@ def post_detail(request, writeup_id, post_index):
         .filter(WriteupPost.index == post_index)\
         .options(joinedload(WriteupPost.versions))
     schema = mallows.WriteupPost()
+    schema.context = {'request': request}
     return schema.dump(query.one()).data
 
 
@@ -162,6 +164,7 @@ def save_post(request, post):
         text="edited {!r}".format(obj))
     request.db_session.add(audit)
     schema = mallows.WriteupPost()
+    schema.context = {'request': request}
     return schema.dump(obj).data
 
 
@@ -181,6 +184,7 @@ def activate_version(request, wpv_id):
         text="activated {!r}".format(wpv))
     request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
+    schema.context = {'request': request}
     return schema.dump(wpv).data
 
 
@@ -189,6 +193,7 @@ def get_wpv(request, wpv_id):
     query = request.db_session.query(WriteupPostVersion)\
         .filter_by(id=wpv_id)
     schema = mallows.WriteupPostVersion()
+    schema.context = {'request': request}
     return schema.dump(query.one()).data
 
 
@@ -215,6 +220,7 @@ def save_wpv(request, wpv_data):
         text="edited {!r}".format(wpv))
     request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
+    schema.context = {'request': request}
     return schema.dump(wpv).data
 
 
@@ -233,6 +239,7 @@ def extract_post(request, thread_post_id):
         text="created an extracted post from {!r}".format(tp))
     request.db_session.add(audit)
     schema = mallows.WriteupPostVersion()
+    schema.context = {'request': request}
     return schema.dump(wpv).data
 
 
@@ -266,6 +273,7 @@ def attach_extracted(request, wpv_id, target):
             text="attached {!r} to writeup".format(wpv))
         request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
+        schema.context = {'request': request}
         return schema.dump(wpv).data
 
     schema = mallows.InputVersionNewPost()
@@ -290,6 +298,7 @@ def attach_extracted(request, wpv_id, target):
             text="attached {!r} to writeup".format(wpv))
         request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
+        schema.context = {'request': request}
         return schema.dump(wpv).data
 
     schema = mallows.InputVersionNewWriteup()
@@ -321,6 +330,7 @@ def attach_extracted(request, wpv_id, target):
             text="attached {!r} to writeup".format(wpv))
         request.db_session.add(audit)
         schema = mallows.WriteupPostVersion()
+        schema.context = {'request': request}
         retval = schema.dump(wpv).data
         return retval
     raise ValueError(result.errors)

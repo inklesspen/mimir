@@ -4,13 +4,6 @@ from urllib.parse import urljoin
 import time
 
 
-def find_container(soup):
-    body_tags = soup.body.find_all(lambda el: isinstance(el, bs4.element.Tag), recursive=False)
-    if len(body_tags) == 1 and body_tags[0].name == 'div':
-        return soup.body.div
-    return soup.body
-
-
 def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     """
     1) soupify
@@ -25,7 +18,7 @@ def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
         html = wpv.html
     else:
         html = wpv.thread_post.html
-    soup = bs4.BeautifulSoup(html, 'lxml')
+    soup = open_soup(html)
     # referer should not contain the fragment identifier, so just the page url
     referer = wpv.thread_post.page.url
 
@@ -44,7 +37,24 @@ def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
         a_tag['href'] = urljoin(wpv.thread_post.url, a_tag['href'])
         a_tag['rel'] = 'nofollow'
 
-    container = find_container(soup)
+    wpv.html = close_soup(soup)
+
+
+def open_soup(html):
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    return soup
+
+
+def _find_container(soup):
+    body_tags = soup.body.find_all(lambda el: isinstance(el, bs4.element.Tag), recursive=False)
+    if len(body_tags) == 1 and body_tags[0].name == 'div':
+        return soup.body.div
+    return soup.body
+
+
+def close_soup(soup):
+    container = _find_container(soup)
     container = container.extract()
     container.hidden = True
-    wpv.html = container.prettify(formatter="html")
+    html = container.prettify(formatter="html")
+    return html

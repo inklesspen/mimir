@@ -34,6 +34,6 @@
   <h3>${post.title}</h3>
     <span class="author">posted by ${post.author}</span> <a href="${post.active_version.url}">Original SA post</a>
 </p>
-${post.active_version}
+${post.active_version.html_with_fixed_image_urls(request)}
 </div>
 % endfor

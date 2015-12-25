@@ -1,6 +1,7 @@
 from ..models import FetchedImage
 from PIL import Image
 from io import BytesIO
+import os.path
 import requests
 
 EXTS = {
@@ -55,5 +56,10 @@ def mirror_image(request, img_tag, referer):
     img_tag['data-orig-src'] = img_src
     img_tag['data-width'] = img.width
     img_tag['data-height'] = img.height
-    img_tag['src'] = request.route_path('image', path=address.relpath)
+    img_tag['src'] = make_image_path(address)
     return did_fetch
+
+
+def make_image_path(address):
+    ext = os.path.splitext(address.relpath)[1]
+    return ''.join([address.id, ext])

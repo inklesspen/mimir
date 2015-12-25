@@ -29,6 +29,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from zope.sqlalchemy import register
 import transaction
+from markupsafe import Markup
 
 
 class Base(object):
@@ -236,8 +237,13 @@ class WriteupPostVersion(Base):
 
     url = association_proxy('thread_post', 'url')
 
-    def __html__(self):
-        return self.html
+    def html_with_fixed_image_urls(self, request):
+        from ..lib.extract import open_soup, close_soup
+        soup = open_soup(self.html)
+        for img_tag in soup.find_all('img', attrs={'data-mirrored': 'mirrored'}):
+            img_tag['src'] = request.route_path('image', path=img_tag['src'])
+        html = close_soup(soup)
+        return Markup(html)
 
     def __repr__(self):
         return ("<WriteupPostVersion {self.id} of {self.writeup_post!r}: "
