@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import jsonrpc from '../../util/jsonrpc';
 import Immutable from 'immutable';
 import {history} from '../../app-history';
-import ExtractedActions from '../../actions/ExtractedActions';
+import ExtractedStore from '../../stores/ExtractedStore';
 import appdata from '../../appdata';
 
 const applyRoot = appdata.get('applyRoot');
@@ -136,7 +136,7 @@ class ExtractedForm extends React.Component {
         return (evt) => {
             evt.preventDefault();
             jsonrpc('delete_extracted', [this.props.post.id]).then(() => {
-                ExtractedActions.fetchExtractedPosts();
+                ExtractedStore.fetchExtractedPosts();
             });
         };
     }
