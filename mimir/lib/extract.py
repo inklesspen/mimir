@@ -52,9 +52,9 @@ def _find_container(soup):
     return soup.body
 
 
-def close_soup(soup):
+def close_soup(soup, formatter='html'):
     container = _find_container(soup)
     container = container.extract()
     container.hidden = True
-    html = container.prettify(formatter="html")
+    html = container.prettify(formatter=formatter)
     return html
