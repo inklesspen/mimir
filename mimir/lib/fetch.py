@@ -2,6 +2,9 @@ import sqlalchemy as sa
 import requests
 from ..models import Thread, ThreadPage, ThreadPost
 from bs4 import BeautifulSoup
+from ftfy import bad_codecs
+
+bad_codecs.ok()  # load in the sloppy codecs
 
 
 def update_thread_status(thread, cred):
@@ -82,4 +85,8 @@ def fetch_thread_page_html(thread_id, page_num, cookies=None):
         'User-Agent': "mimir"
     }
     url = 'http://forums.somethingawful.com/showthread.php'
-    return requests.get(url, params=params, cookies=cookies, headers=headers)
+    resp = requests.get(url, params=params, cookies=cookies, headers=headers)
+    # if we have 'iso-8859-1', it should actually be 'windows-1252'
+    if resp.encoding == 'iso-8859-1':
+        resp.encoding = 'sloppy-windows-1252'
+    return resp
