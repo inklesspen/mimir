@@ -313,7 +313,7 @@ def attach_extracted(request, wpv_id, target):
             writeup_slug=Writeup.slugify(result.data['w_title']),
             title=result.data['w_title'],
             status='ongoing',
-            published=False,
+            published=True,
         )
         request.db_session.add(w)
 
