@@ -22,9 +22,13 @@ function timgSetup() {
     const actualWidth = parseInt(el.getAttribute('data-width'), 10);
     const actualHeight = parseInt(el.getAttribute('data-height'), 10);
     let constrainHeight = false, constrainWidth = false;
-    if (actualHeight > thresholdHeight) {
+    const heightRatio = actualHeight / thresholdHeight;
+    const widthRatio = actualWidth / thresholdWidth;
+    if (widthRatio > 1.0 && widthRatio > heightRatio) {
+      constrainWidth = true;
+    } else if (heightRatio > 1.0) {
       constrainHeight = true;
-    } else if (actualWidth > thresholdWidth) {
+    } else if (widthRatio > 1.0) {
       constrainWidth = true;
     } else {
       el.classList.remove('timg');
