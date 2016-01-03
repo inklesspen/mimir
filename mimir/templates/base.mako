@@ -4,8 +4,8 @@
     <title><%block name="title">FATAL & Friends</%block></title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="${request.static_url('mimir:static/bootstrap.css')}">
-    <link rel="stylesheet" href="${request.static_url('mimir:static/site.css')}">
+    <link rel="stylesheet" href="${request.static_path('mimir:static/bootstrap.css')}">
+    <link rel="stylesheet" href="${request.static_path('mimir:static/site.css')}">
 % if 'ga.tracking_id' in request.registry.settings:
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

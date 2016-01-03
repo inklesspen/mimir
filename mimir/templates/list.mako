@@ -13,7 +13,7 @@ These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some 
         <tbody>
           % for writeup in writeups:
           <tr>
-            <td><a href="${request.route_url('writeup', author_slug=writeup.author_slug, writeup_slug=writeup.writeup_slug)}">${writeup.title}</a></td>
+            <td><a href="${request.route_path('writeup', author_slug=writeup.author_slug, writeup_slug=writeup.writeup_slug)}">${writeup.title}</a></td>
             <td>${writeup.posts[0].author}</td>
             <td>${writeup.status}</td>
           </tr>
