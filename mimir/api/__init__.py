@@ -100,7 +100,7 @@ def extracted_list(request):
 @jsonrpc_method(endpoint='api', permission='admin')
 def writeup_list(request):
     query = request.db_session.query(Writeup)\
-        .order_by(Writeup.writeup_slug.asc(), Writeup.author_slug.asc())\
+        .order_by(Writeup.title.asc(), Writeup.author_slug.asc())\
         .options(joinedload(Writeup.posts))
     schema = mallows.Writeup(many=True)
     return schema.dump(query.all()).data
