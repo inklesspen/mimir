@@ -4,6 +4,7 @@ import {VersionStore} from '../stores/VersionStore';
 import VersionActions from '../actions/VersionActions';
 import Immutable from 'immutable';
 import classNames from 'classnames';
+import {Breadcrumbs, Breadcrumb} from './Breadcrumbs.jsx';
 import appdata from '../appdata';
 
 const SQUIRE_PATH = appdata.get('squireUrl');
@@ -170,6 +171,7 @@ class VersionForm extends React.Component {
     }
 }
 
+const applyRoot = appdata.get('applyRoot');
 
 export default class VersionEditor extends React.Component {
     static onEnter(nextState, replaceState, callback) {
@@ -190,6 +192,10 @@ export default class VersionEditor extends React.Component {
         return (
             <div className="container">
                 <AltContainer store={VersionStore}>
+                    <Breadcrumbs>
+                        <Breadcrumb to={applyRoot('')} title="Home" />
+                        <Breadcrumb active={true} title={`Post Editor`} />
+                    </Breadcrumbs>
                     <VersionForm version={this.props.version} />
                 </AltContainer>
             </div>
