@@ -92,6 +92,15 @@ class SquireEditor extends React.Component {
     }
 }
 
+// Firefox has a long-standing bug where an iframe hidden with display:none
+// has no selection object. This prevents squire from initializing properly.
+// https://bugzilla.mozilla.org/show_bug.cgi?id=585229
+// https://bugzilla.mozilla.org/show_bug.cgi?id=827585
+// https://github.com/neilj/Squire/issues/168
+const IS_FIREFOX = /Gecko\//.test(navigator.userAgent);
+const STARTING_TAB = IS_FIREFOX ? 'squire' : 'source';
+
+
 class VersionForm extends React.Component {
     constructor(props) {
         super(props);
@@ -103,7 +112,7 @@ class VersionForm extends React.Component {
         state.data = Immutable.Map({
             editSummary: '',
             html: props.version.html,
-            activeTab: 'source'
+            activeTab: STARTING_TAB
         });
         return state;
     }
