@@ -34,7 +34,14 @@ def determine_fetches(db_session, cred):
             Thread.id.label('thread_id'),
             sa.func.generate_series(fetch_status.c.last_fetched_page+1, Thread.page_count).label('page_num'),
         ], from_obj=sa.join(Thread, fetch_status, Thread.id == fetch_status.c.thread_id))
-    q = incomplete_pages.union(unfetched_pages)
+    fetched_first_pages = sa.select([ThreadPage.thread_id]).where(ThreadPage.page_num == 1).as_scalar()
+    unfetched_first_pages = sa.select(
+        [
+            Thread.id.label('thread_id'),
+            sa.literal(1, sa.Integer).label('page_num')
+        ], from_obj=Thread)\
+        .where(Thread.id.notin_(fetched_first_pages))
+    q = sa.union(incomplete_pages, unfetched_pages, unfetched_first_pages)
     q = q.order_by(q.c.thread_id.asc(), q.c.page_num.asc())
     return db_session.execute(q).fetchall()
 
@@ -64,7 +71,11 @@ def make_soup(resp):
 
 def extract_page_count(soup):
     pages = soup.find(class_="pages")
-    return max([int(o['value']) for o in pages.find_all('option')])
+    page_options = pages.find_all('option')
+    if page_options:
+        return max([int(o['value']) for o in page_options])
+    else:
+        return 1
 
 
 def extract_closed(soup):
