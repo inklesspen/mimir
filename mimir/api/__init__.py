@@ -20,6 +20,7 @@ from ..models import (
     )
 
 from ..lib.extract import extract_post_into_wpv, extract_post_from_wpv
+from ..lib.fetch import fetch_thread_page
 
 
 @jsonrpc_method(endpoint='api')
@@ -334,6 +335,17 @@ def attach_extracted(request, wpv_id, target):
         retval = schema.dump(wpv).data
         return retval
     raise ValueError(result.errors)
+
+
+@jsonrpc_method(endpoint="api")
+def refetch_page(request, thread_id, page_num):
+    tp = request.db_session.query(ThreadPage)\
+        .filter_by(thread_id=thread_id, page_num=page_num)\
+        .options(joinedload(ThreadPage.posts), joinedload(ThreadPage.thread))\
+        .one()
+    fetch_thread_page(request.db_session, tp.fetched_with, tp.thread_id, tp.page_num)
+    request.db_session.flush()
+    return tp.last_fetched.isoformat()
 
 
 @jsonrpc_method(endpoint='api')

@@ -143,12 +143,26 @@ class ThreadPosts extends React.Component {
             </nav>
         );
     }
+    refetchHandler() {
+        return (evt) => {
+            evt.preventDefault();
+            console.log(this.props.threadPage);
+            const threadId = this.props.threadPage.thread_id;
+            const pageNum = this.props.threadPage.page_num;
+            jsonrpc('refetch_page', [threadId, pageNum]).then(() => {
+                ThreadPageStore.fetchThreadPage(threadId, pageNum)
+            });
+        };
+    }
     render() {
         if (!this.props.threadPage) {
             return null;
         }
         return (
             <div>
+                <div>
+                    <button type="button" className="btn btn-warning" onClick={this.refetchHandler()}>Refetch Page</button>
+                </div>
                 <div>{this.pagination()}
                 </div>
                 {this.props.threadPage.posts.map((post, i) => {
