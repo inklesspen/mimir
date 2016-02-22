@@ -101,7 +101,7 @@ def extracted_list(request):
 @jsonrpc_method(endpoint='api', permission='admin')
 def writeup_list(request):
     query = request.db_session.query(Writeup)\
-        .order_by(Writeup.title.asc(), Writeup.author_slug.asc())\
+        .order_by(Writeup.title.asc(), Writeup.author.asc())\
         .options(joinedload(Writeup.posts))
     schema = mallows.Writeup(many=True)
     return schema.dump(query.all()).data
@@ -308,6 +308,7 @@ def attach_extracted(request, wpv_id, target):
         w = Writeup(
             author_slug=Writeup.slugify(result.data['w_author']),
             writeup_slug=Writeup.slugify(result.data['w_title']),
+            author=result.data['w_author'],
             title=result.data['w_title'],
             status='ongoing',
             published=True,

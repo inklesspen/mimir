@@ -7,6 +7,7 @@ import {FormRowInput, FormRowCheckbox, FormRowSelect} from '../FormRowTools.jsx'
 function mapWithDefaults(detail) {
     let map = Immutable.Map({
         'title': '',
+        'author': '',
         'author_slug': '',
         'writeup_slug': '',
         'status': 'ongoing',
@@ -81,6 +82,7 @@ export default class WriteupOverview extends React.Component {
                 <div className="col-md-12">
                     <form className="form-horizontal">
                         <FormRowInput editable={this.state.editable} label="Title" value={this.state.detail.get('title')} data-id='title' onChange={this.changeHandler('title')} />
+                        <FormRowInput editable={this.state.editable} label="Author" value={this.state.detail.get('author')} data-id='author' onChange={this.changeHandler('author')} />
                         <FormRowInput editable={this.state.editable && this.state.creating} label="Author Slug" placeholder="(Cannot be changed later)" value={this.state.detail.get('author_slug')} onChange={this.changeHandler('author_slug')} data-id='author_slug' />
                         <FormRowInput editable={this.state.editable && this.state.creating} label="Writeup Slug" placeholder="(Cannot be changed later)" value={this.state.detail.get('writeup_slug')} onChange={this.changeHandler('writeup_slug')} data-id='writeup_slug' />
                         <FormRowSelect editable={this.state.editable} label="Status" value={this.state.detail.get('status')} data-id='status' onChange={this.changeHandler('status')}>

@@ -1,7 +1,7 @@
 <%inherit file="base.mako"/>
 <%block name="title">${parent.title()} &mdash; ${writeup.title}</%block>
 <div class="page-header">
-  <h1>${writeup.title} <small>by ${writeup.posts[0].author}</small></h1>
+  <h1>${writeup.title} <small>by ${writeup.author}</small></h1>
 </div>
 % if writeup.offensive_content:
 <img class="contentwarning" src="${request.static_url('mimir:static/gross.png')}" alt="This RPG is pretty gross.">

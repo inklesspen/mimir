@@ -162,6 +162,7 @@ class Writeup(Base):
     author_slug = Column(String(100), nullable=False, index=True)
     writeup_slug = Column(String(100), nullable=False, index=True)
     title = Column(Unicode(100), nullable=False)
+    author = Column(Unicode(100), nullable=False)
     status = Column(Enum('ongoing', 'abandoned', 'completed', native_enum=False), nullable=False)
     published = Column(Boolean, nullable=False, default=False)
     # anything with offensive_content will be blocked in robots.txt

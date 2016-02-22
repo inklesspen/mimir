@@ -6,6 +6,7 @@ class Writeup(Schema):
     author_slug = fields.String()
     writeup_slug = fields.String()
     title = fields.String()
+    author = fields.String()
     status = fields.String()
     published = fields.Boolean()
     offensive_content = fields.Boolean()
