@@ -3,6 +3,18 @@ from .images import mirror_image, MirrorError
 from urllib.parse import urljoin
 import time
 
+from .. import models
+import sqlalchemy as sa
+
+
+def extract_post_into_wpv(request, tp):
+    wpv = models.WriteupPostVersion(
+        thread_post=tp, created_at=sa.func.now(),
+        edit_summary="Extracted from post {}".format(tp.id))
+    request.db_session.add(wpv)
+    extract_post_from_wpv(request, wpv)
+    return wpv
+
 
 def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     """

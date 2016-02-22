@@ -19,7 +19,7 @@ from ..models import (
     WriteupPostVersion,
     )
 
-from ..lib.extract import extract_post_from_wpv
+from ..lib.extract import extract_post_into_wpv, extract_post_from_wpv
 
 
 @jsonrpc_method(endpoint='api')
@@ -231,11 +231,7 @@ def save_wpv(request, wpv_data):
 @jsonrpc_method(endpoint='api', permission='admin')
 def extract_post(request, thread_post_id):
     tp = request.db_session.query(ThreadPost).filter_by(id=thread_post_id).one()
-    wpv = WriteupPostVersion(
-        thread_post=tp, created_at=sa.func.now(),
-        edit_summary="Extracted from post {}".format(tp.id))
-    request.db_session.add(wpv)
-    extract_post_from_wpv(request, wpv)
+    wpv = extract_post_into_wpv(request, tp)
     request.db_session.flush()
     user = request.db_session.query(AuthorizedUser).filter_by(email=request.authenticated_userid).one()
     audit = AuditEntry(
