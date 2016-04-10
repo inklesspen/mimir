@@ -22,7 +22,7 @@ def list_writeups(request):
     writeups = request.db_session.query(Writeup)\
         .options(sa.orm.joinedload(Writeup.posts))\
         .filter_by(published=True)\
-        .order_by(Writeup.writeup_slug.asc(), Writeup.id.asc())
+        .order_by(Writeup.title.asc(), Writeup.id.asc())
     return {'writeups': writeups}
 
 
