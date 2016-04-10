@@ -21,6 +21,7 @@ from ..models import (
 
 from ..lib.extract import extract_post_into_wpv, extract_post_from_wpv
 from ..lib.fetch import fetch_thread_page
+from ..lib.split import extract_posts
 
 
 @jsonrpc_method(endpoint='api')
@@ -345,6 +346,7 @@ def refetch_page(request, thread_id, page_num):
         .options(joinedload(ThreadPage.posts), joinedload(ThreadPage.thread))\
         .one()
     fetch_thread_page(request.db_session, tp.fetched_with, tp.thread_id, tp.page_num)
+    extract_posts(request.db_session, tp)
     request.db_session.flush()
     return tp.last_fetched.isoformat()
 

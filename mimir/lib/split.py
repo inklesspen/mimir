@@ -41,7 +41,8 @@ def split_threadpage(page, tz):
     return posts
 
 
-def extract_posts(db_session, page, tz):
+def extract_posts(db_session, page):
+    tz = pytz.timezone(page.fetched_with.timezone)
     posts = split_threadpage(page, tz)
     if page.last_split is None:
         # splitting for the first time, no need to check if posts exist
@@ -74,5 +75,4 @@ def extract_posts_from_pages(db_session):
     for page in db_session.query(ThreadPage).filter(
             or_(ThreadPage.last_split == null(),
                 ThreadPage.last_fetched > ThreadPage.last_split)):
-        tz = pytz.timezone(page.fetched_with.timezone)
-        extract_posts(db_session, page, tz)
+        extract_posts(db_session, page)
