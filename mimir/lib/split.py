@@ -4,6 +4,7 @@ from collections import namedtuple
 import bs4
 from dateutil.parser import parse
 import pytz
+from urllib.parse import urljoin
 
 from ..models import ThreadPage, ThreadPost
 
@@ -36,6 +37,9 @@ def split_threadpage(page, tz):
         editedby = wrapped.find("p", class_="editedby")
         if editedby is not None:
             editedby.extract()
+        # fix relative image srces
+        for img in wrapped.findAll('img'):
+            img['src'] = urljoin(page.url, img['src'])
         html = wrapped.prettify(formatter="html").strip()
         posts.append(Post(id=id, author=author, timestamp=timestamp, html=html))
     return posts

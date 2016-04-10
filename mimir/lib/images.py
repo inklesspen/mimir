@@ -23,12 +23,13 @@ class CantConnect(MirrorError):
     pass
 
 
-def mirror_image(request, img_tag, referer):
+def mirror_image(request, img_tag, referer, cred):
     did_fetch = False
     if 'data-mirrored' in img_tag.attrs:
         img_src = img_tag['data-orig-src']
     else:
         img_src = img_tag['src']
+    use_cred = ("forums.somethingawful.com" in img_src)
     img_query = request.db_session.query(FetchedImage).filter_by(orig_url=img_src)
     prefetched = img_query.one_or_none()
     if prefetched is not None:
@@ -42,7 +43,10 @@ def mirror_image(request, img_tag, referer):
         # this is not an else, since prefetched may have become None in the earlier block
         did_fetch = True
         try:
-            r = requests.get(img_src, headers={'referer': referer}, timeout=5)
+            r_kwargs = {'headers': {'referer': referer}, 'timeout': 5}
+            if use_cred:
+                r_kwargs['cookies'] = cred.cookies
+            r = requests.get(img_src, **r_kwargs)
         except requests.exceptions.ConnectionError as err:
             raise CantConnect(err)
         if not r.headers['Content-Type'].startswith('image'):

@@ -34,9 +34,11 @@ def extract_post_from_wpv(request, wpv, self_html=False, sleep_between=False):
     # referer should not contain the fragment identifier, so just the page url
     referer = wpv.thread_post.page.url
 
+    cred = wpv.thread_post.page.fetched_with
+
     for img_tag in soup.find_all('img'):
         try:
-            did_fetch = mirror_image(request, img_tag, referer)
+            did_fetch = mirror_image(request, img_tag, referer, cred)
             if did_fetch and sleep_between:
                 time.sleep(1)
         except MirrorError:
