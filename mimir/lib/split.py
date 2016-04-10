@@ -5,6 +5,7 @@ import bs4
 from dateutil.parser import parse
 import pytz
 from urllib.parse import urljoin
+from .util import sane_prettify
 
 from ..models import ThreadPage, ThreadPost
 
@@ -40,7 +41,7 @@ def split_threadpage(page, tz):
         # fix relative image srces
         for img in wrapped.findAll('img'):
             img['src'] = urljoin(page.url, img['src'])
-        html = wrapped.prettify(formatter="html").strip()
+        html = sane_prettify(wrapped)
         posts.append(Post(id=id, author=author, timestamp=timestamp, html=html))
     return posts
 

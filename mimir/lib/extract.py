@@ -2,6 +2,7 @@ import bs4
 from .images import mirror_image, MirrorError
 from urllib.parse import urljoin
 import time
+from .util import sane_prettify
 
 from .. import models
 import sqlalchemy as sa
@@ -66,9 +67,9 @@ def _find_container(soup):
     return soup.body
 
 
-def close_soup(soup, formatter='html'):
+def close_soup(soup):
     container = _find_container(soup)
     container = container.extract()
     container.hidden = True
-    html = container.prettify(formatter=formatter)
+    html = sane_prettify(container)
     return html
