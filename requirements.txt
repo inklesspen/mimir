@@ -29,7 +29,7 @@ pytz==2015.7
 beautifulsoup4==4.4.1
 pyramid-rpc==0.7.2
 marshmallow==2.3.0
-Pillow==3.0.0
+Pillow==6.2.0
 requests==2.8.1
 lxml==3.5.0
 html5lib==0.9999999
