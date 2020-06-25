@@ -1,0 +1,3 @@
+[run]
+source = mimir
+omit = mimir/test*
