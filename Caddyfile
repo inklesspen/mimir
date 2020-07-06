@@ -1,0 +1,31 @@
+(pyramid) {
+        uri strip_prefix /mimir
+        reverse_proxy localhost:6543 {
+            # header_up Host {http.reverse_proxy.upstream.hostport}
+        }
+}
+
+localhost {
+    @image {
+        path_regexp image /mimir/images/([0-9A-Fa-f]{3})([0-9A-Fa-f]{3})([0-9A-Fa-f]{58})\.([A-Za-z]+)$
+    }
+
+    handle /mimir/admin/* {
+        import pyramid
+    }
+    handle /mimir/_debug_toolbar/* {
+        import pyramid
+    }
+    handle @image {
+        rewrite @image /hashfs/{http.regexp.image.1}/{http.regexp.image.2}/{http.regexp.image.3}.{http.regexp.image.4}
+        file_server {
+            root ./mimirdata
+        }
+    }
+    respond "Unrouted"
+}
+
+# /mimir/admin/ -> reverse_proxy to backend server (strip /mimir)
+# /mimir/images/48851af9943799711a14c90b51a61cbb7706ba298dea5f639b610b99c6000ef0.ext -> hashfs/488/51a/f9943799711a14c90b51a61cbb7706ba298dea5f639b610b99c6000ef0.ext
+# /mimir/* -> file
+# /* -> redirect to /mimir/
