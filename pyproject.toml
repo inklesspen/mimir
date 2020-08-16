@@ -1,3 +1,7 @@
 [build-system]
 requires = ["setuptools >= 40.6.0", "wheel"]
 build-backend = "setuptools.build_meta"
+[tool.pytest.ini_options]
+testpaths = "src/mimir"
+python_files = "test*.py"
+addopts = "--import-mode=importlib"
