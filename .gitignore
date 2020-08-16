@@ -19,6 +19,7 @@ Data.fs*
 .DS_Store
 coverage
 test
+.vscode
 
 mimirdata
 output

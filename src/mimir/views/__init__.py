@@ -12,9 +12,12 @@ from ..models import (
     ThreadPage,
     ThreadPost,
     Writeup,
+    WriteupPost,
     WriteupPostVersion,
 )
 from ..models.classes import likely_writeups
+from ..models.mallows import AssignWPV
+import mimir.render
 
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
@@ -44,9 +47,8 @@ def index(request):
         wpv.writeup_guess = guess.title if guess is not None else "[New]"
 
     writeups = request.db_session.query(Writeup).order_by(
-        Writeup.title.asc(), Writeup.author.asc()
+        Writeup.title.collate("writeuptitle").asc(), Writeup.author.asc()
     )
-    # .options(joinedload(Writeup.posts))
 
     return {
         "threads": threads.all(),
@@ -138,22 +140,124 @@ def extract_post(request):
 
 
 @view_config(
-    route_name="extracted_post", renderer="mimir:templates/extracted_post.mako"
+    route_name="extracted_post", renderer="mimir:templates/extracted_post.mako", request_method="GET"
 )
 def extracted_post(request):
     wpv = (
         request.db_session.query(WriteupPostVersion)
         .options(joinedload(WriteupPostVersion.thread_post))
+        .filter_by(writeup_post=None)
         .filter_by(id=request.matchdict["post_id"])
         .one()
     )
 
+    ongoing_writeups = request.db_session.query(Writeup).filter_by(status="ongoing")
+    likely_writeups_query = likely_writeups(request.db_session, wpv)
+
+    other_writeups = ongoing_writeups.except_(likely_writeups_query).order_by(Writeup.title.asc(), Writeup.id.asc())
+
     wpv.html_markup = Markup(wpv.html_with_fixed_image_urls(request))
 
+    all_likely_writeups = likely_writeups_query.all()
     return {
         "wpv": wpv,
-        "likely_writeups": likely_writeups(request.db_session, wpv).all(),
+        "other_writeups": other_writeups.all(),
+        "likely_writeups": all_likely_writeups,
+        "has_likely_writeup": len(all_likely_writeups) > 0,
     }
+
+
+@view_config(route_name="extracted_post", request_method="POST")
+def extracted_post_save(request):
+    wpv = (
+        request.db_session.query(WriteupPostVersion)
+        .options(joinedload(WriteupPostVersion.thread_post))
+        .filter_by(writeup_post=None)
+        .filter_by(id=request.matchdict["post_id"])
+        .one()
+    )
+    schema = AssignWPV(context={'request': request})
+    data = schema.load(request.POST)
+    if 'writeup_post' in data:
+        # existing post, new version
+        wp = data['writeup_post']
+        for version in wp.versions:
+            version.active = False
+
+        wpv.version = max([x.version for x in wp.versions]) + 1
+        wp.versions.append(wpv)
+
+    elif 'writeup' in data:
+        # existing writeup, new post
+        w = data['writeup']
+        new_index = len(w.posts) + 1
+        wp = WriteupPost(
+            author=wpv.thread_post.author,
+            index=new_index,
+            ordinal='{}'.format(new_index),
+            title=data['post_title'],
+            published=True
+        )
+        w.posts.append(wp)
+
+        wp.versions.append(wpv)
+    else:
+        # new writeup
+        w = Writeup(
+            author_slug=Writeup.slugify(data['writeup_author']),
+            writeup_slug=Writeup.slugify(data['writeup_title']),
+            author=data['writeup_author'],
+            title=data['writeup_title'],
+            status='ongoing',
+            published=True,
+        )
+        request.db_session.add(w)
+
+        wp = WriteupPost(
+            author=wpv.thread_post.author,
+            index=1,
+            ordinal='1',
+            title=data['post_title'],
+            published=True
+        )
+        w.posts.append(wp)
+
+        wp.versions.append(wpv)
+
+    if 'post_html' in data:
+        new_wpv = WriteupPostVersion()
+        new_wpv.html = data['post_html']
+        new_wpv.created_at = sa.func.now()
+        new_wpv.version = wpv.version + 1
+        new_wpv.active = True
+
+        wpv.writeup_post.versions.append(new_wpv)
+        wpv.thread_post.writeup_post_versions.append(new_wpv)
+    else:
+        wpv.active = True
+
+    request.db_session.flush()
+    return HTTPSeeOther(location=request.route_path('writeup', writeup_id=wpv.writeup_post.writeup.id))
+
+
+@view_config(route_name="render_all", request_method="POST")
+def render_all(request):
+    mimir.render.render_all(request)
+    return HTTPSeeOther(location=request.route_path("rendered_toc"))
+
+
+@view_config(route_name="writeup", renderer="mimir:templates/writeup.mako", request_method="GET")
+@view_config(
+    route_name="writeup_post_options", renderer="mimir:templates/extracted_post#writeup_post_options.mako"
+)
+def writeup_view(request):
+    writeup = (
+        request.db_session.query(Writeup)
+        .options(joinedload(Writeup.posts))
+        .filter_by(id=request.matchdict["writeup_id"])
+        .one()
+    )
+    return {"writeup": writeup}
 
 
 def includeme(config):
@@ -163,4 +267,6 @@ def includeme(config):
     config.add_route("extract_post", "/post/{post_id}/:extract")
     config.add_route("extracted_post", "/post/{post_id}")
     config.add_route("writeup", "/writeup/{writeup_id}")
+    config.add_route("writeup_post_options", "/writeup/{writeup_id}/post-options")
+    config.add_route("render_all", "/render")
     config.scan()

@@ -13,7 +13,6 @@ def extract_post_into_wpv(request, tp):
     wpv = models.WriteupPostVersion(
         thread_post=tp,
         created_at=sa.func.now(),
-        edit_summary="Extracted from post {}".format(tp.id),
     )
     request.db_session.add(wpv)
     extract_post_from_wpv(request, wpv)

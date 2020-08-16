@@ -1,4 +1,10 @@
 <%inherit file="layout.mako"/>
+<div>
+<form class="form-inline" action="${request.route_path('render_all')}" method="POST">
+  <button type="submit" class="btn btn-primary mb-2">Render All</button>
+</form>
+</div>
+
 <table class="table table-striped table-hover">
 <thead><tr><th>Thread</th><th>Page Count</th><th>Open/Active</th><th>Actions</th></tr></thead>
 <tbody>
@@ -29,7 +35,6 @@
         <ul class="list-inline mb-0">
             <li class="list-inline-item"><a href="${request.route_path('extracted_post', post_id=wpv.id)}">#${wpv.thread_post.id}</a></li>
             <li class="list-inline-item">${wpv.thread_post.author}</li>
-            <li class="list-inline-item">${wpv.edit_summary}</li>
             <li class="list-inline-item">Likely Writeup: ${wpv.writeup_guess}</li>
         </ul>
     </div>
@@ -42,7 +47,7 @@
 <tbody>
 % for writeup in writeups:
 <tr>
-    <td>${writeup.title}</td>
+    <td><a href="${request.route_path('writeup', writeup_id=writeup.id)}">${writeup.title}</a></td>
     <td>${writeup.author_slug}</td>
     <td>${writeup.status}</td>
     <td>${"☑︎" if writeup.published else "□"}</td>

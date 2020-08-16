@@ -224,8 +224,6 @@ class WriteupPostVersion(Base):
     version = Column(Integer, nullable=False, default=1)
     active = Column(Boolean, nullable=False, default=False)
 
-    edit_summary = Column(Unicode(200), nullable=False)
-
     url = association_proxy("thread_post", "url")
 
     def html_with_fixed_image_urls(self, request):

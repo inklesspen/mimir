@@ -8,7 +8,22 @@ blockquote {
 }
 </style>
 </%block>
-<%def name="pagination_els()">
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="${request.route_path('index')}">Home</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Thread #${thread_page.thread_id}</li>
+  </ol>
+</nav>
+
+<hr>
+<div>
+<form class="form-inline" action="${request.route_path('refetch_page', thread_id=thread_page.thread.id, page_num=thread_page.page_num)}" method="POST">
+  <button type="submit" class="btn btn-primary mb-2">Refetch</button>
+  <label class="ml-2">Last fetched: ${thread_page.last_fetched.isoformat()}</label>
+</form>
+</div>
+
+<%block name="pagination_els">
 <nav aria-label="Thread navigation">
   <ul class="pagination">
     <li class="page-item${"" if pagination['enable_prev'] else " disabled"}">
@@ -38,22 +53,8 @@ blockquote {
     </li>
   </ul>
 </nav>
-</%def>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="${request.route_path('index')}">Home</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Thread #${thread_page.thread_id}</li>
-  </ol>
-</nav>
+</%block>
 
-<hr>
-<div>
-<form class="form-inline" action="${request.route_path('refetch_page', thread_id=thread_page.thread.id, page_num=thread_page.page_num)}" method="POST">
-  <button type="submit" class="btn btn-primary mb-2">Refetch</button>
-  <label class="ml-2">Last fetched: ${thread_page.last_fetched.isoformat()}</label>
-</form>
-</div>
-${pagination_els()}
 % for thread_post in thread_page.posts:
 <div class="card" id="post-${thread_post.id}">
     <div class="card-header">
