@@ -24,7 +24,7 @@ from .meta import Base
 
 class AuthorizedUser(Base):
     id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True)
+    email = Column(String(255), nullable=False, unique=True)
     name = Column(Unicode, nullable=False)
 
     @classmethod
@@ -75,7 +75,7 @@ class Thread(Base):
 
 
 class ThreadPage(Base):
-    __table_args__ = (UniqueConstraint("thread_id", "page_num"),)
+    __table_args__ = (UniqueConstraint("thread_id", "page_num", name="uq_thread_pages_thread_id_page_num"),)
     id = Column(Integer, primary_key=True)
     thread_id = Column(Integer, ForeignKey("threads.id"), nullable=False)
     page_num = Column(Integer, nullable=False)
@@ -125,14 +125,14 @@ class ThreadPost(Base):
 
 
 class Writeup(Base):
-    __table_args__ = (UniqueConstraint("author_slug", "writeup_slug"),)
+    __table_args__ = (UniqueConstraint("author_slug", "writeup_slug", name="uq_writeups_author_slug_writeup_slug"),)
     id = Column(Integer, primary_key=True)
     author_slug = Column(String(100), nullable=False, index=True)
     writeup_slug = Column(String(100), nullable=False, index=True)
     title = Column(Unicode(100), nullable=False)
     author = Column(Unicode(100), nullable=False)
     status = Column(
-        Enum("ongoing", "abandoned", "completed", native_enum=False), nullable=False
+        Enum("ongoing", "abandoned", "completed", native_enum=False, name="check_status"), nullable=False
     )
     published = Column(Boolean, nullable=False, default=False)
     # anything with offensive_content will be blocked in robots.txt

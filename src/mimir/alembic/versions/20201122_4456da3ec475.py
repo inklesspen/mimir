@@ -1,8 +1,8 @@
 """remove wpv.edit_summary
 
-Revision ID: 02b0e496b6fa
+Revision ID: 4456da3ec475
 Revises: 2ad7596b10cd
-Create Date: 2020-07-15 01:03:46.264477
+Create Date: 2020-11-22 09:33:58.838252
 
 """
 from alembic import op
@@ -10,11 +10,10 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "02b0e496b6fa"
-down_revision = "2ad7596b10cd"
+revision = '4456da3ec475'
+down_revision = '2ad7596b10cd'
 branch_labels = None
 depends_on = None
-
 
 def upgrade():
     op.drop_column("writeup_post_versions", "edit_summary")
