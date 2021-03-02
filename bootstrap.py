@@ -19,10 +19,19 @@ def update_deps():
             "pip",
             "install",
             "--upgrade",
-            "pip-tools",
             "pip",
             "setuptools",
             "wheel",
+        ]
+    )
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "pip-tools",
         ]
     )
     subprocess.check_call(
@@ -50,6 +59,18 @@ def update_deps():
 
 
 def init():
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "pip",
+            "setuptools",
+            "wheel",
+        ]
+    )
     subprocess.check_call(
         [
             sys.executable,
