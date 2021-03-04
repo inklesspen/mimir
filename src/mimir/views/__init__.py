@@ -1,13 +1,14 @@
 from markupsafe import Markup
-from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.httpexceptions import HTTPForbidden, HTTPSeeOther
 from pyramid.view import view_config
 import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 
 from ..lib.extract import extract_post_into_wpv
-from ..lib.fetch import fetch_thread_page
-from ..lib.split import extract_posts
+from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
+from ..lib.split import extract_posts, extract_posts_from_pages
 from ..models import (
+    Credential,
     Thread,
     ThreadPage,
     ThreadPost,
@@ -22,6 +23,7 @@ import mimir.render
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
 def index(request):
+    cred = request.db_session.query(Credential).filter_by(valid=True).one_or_none()
     threads = request.db_session.query(Thread).order_by(Thread.id.asc())
     # This is somewhat expensive; there's no index on this.
     max_tp = request.db_session.query(
@@ -51,6 +53,7 @@ def index(request):
     )
 
     return {
+        "active_cred": cred,
         "threads": threads.all(),
         "last_extracted_post": {
             "thread_id": tp.page.thread.id,
@@ -260,6 +263,21 @@ def writeup_view(request):
     return {"writeup": writeup}
 
 
+@view_config(route_name="fetch_threads", request_method="POST")
+def fetch_threads(request):
+    # TODO: handle case where no cred is valid
+    cred = request.db_session.query(Credential).filter_by(valid=True).one()
+    validate_cred(cred)
+    if not cred.valid:
+        return HTTPForbidden("Cred invalid")
+    fetches = determine_fetches(request.db_session, cred)
+    for thread_id, page_num in fetches:
+        fetch_thread_page(request.db_session, cred, thread_id, page_num)
+
+    extract_posts_from_pages(request.db_session)
+    return HTTPSeeOther(location=request.route_path("index"))
+
+
 def includeme(config):
     config.add_route("index", "/")
     config.add_route("thread_page", "/threads/{thread_id}/page/{page_num}")
@@ -269,4 +287,5 @@ def includeme(config):
     config.add_route("writeup", "/writeup/{writeup_id}")
     config.add_route("writeup_post_options", "/writeup/{writeup_id}/post-options")
     config.add_route("render_all", "/render")
+    config.add_route("fetch_threads", "/fetchthreads")
     config.scan()

@@ -1,9 +1,19 @@
 <%inherit file="layout.mako"/>
-<div>
-<form class="form-inline" action="${request.route_path('render_all')}" method="POST">
-  <button type="submit" class="btn btn-primary mb-2">Render All</button>
-</form>
-</div>
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline mr-auto" action="${request.route_path('render_all')}" method="POST">
+        <button type="submit" class="btn btn-primary my-2 my-sm-0">Render All</button>
+    </form>
+    <span class="navbar-text mr-4">
+    % if active_cred:
+    Signed in: ${active_cred.username}
+    % else:
+    Signed out
+    % endif
+    </span>
+    <form class="form-inline my-2 my-lg-0" action="${request.route_path('fetch_threads')}" method="POST">
+        <button type="submit" class="btn btn-secondary my-2 my-sm-0">Fetch Threads</button>
+    </form>
+</nav>
 
 <table class="table table-striped table-hover">
 <thead><tr><th>Thread</th><th>Page Count</th><th>Open/Active</th><th>Actions</th></tr></thead>

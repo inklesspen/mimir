@@ -1,11 +1,18 @@
-import sqlalchemy as sa
-import requests
 from bs4 import BeautifulSoup
 from ftfy import bad_codecs
+import requests
+import sqlalchemy as sa
 
 from ..models import Thread, ThreadPage, ThreadPost
 
 bad_codecs.ok()  # load in the sloppy codecs
+
+
+def validate_cred(cred):
+    resp = fetch_sa_page("https://forums.somethingawful.com/usercp.php", {}, cred.cookies)
+    soup = make_soup(resp)
+    cred.valid = soup.find(id='unregistered') is None
+    cred.username = soup.find(id='loggedinusername').text
 
 
 def update_thread_status(thread, cred):
@@ -105,16 +112,20 @@ def extract_closed(soup):
 
 
 def fetch_thread_page_html(thread_id, page_num, cookies=None):
-    if cookies is None:
-        cookies = {}
     params = {
         "threadid": thread_id,
         "pagenumber": page_num,
         "noseen": 1,
         "perpage": 40,
     }
-    headers = {"User-Agent": "mimir"}
     url = "http://forums.somethingawful.com/showthread.php"
+    return fetch_sa_page(url, params, cookies)
+
+
+def fetch_sa_page(url, params, cookies=None):
+    if cookies is None:
+        cookies = {}
+    headers = {"User-Agent": "mimir"}
     resp = requests.get(url, params=params, cookies=cookies, headers=headers)
     # if we have 'iso-8859-1', it should actually be 'windows-1252'
     if resp.encoding == "iso-8859-1":
