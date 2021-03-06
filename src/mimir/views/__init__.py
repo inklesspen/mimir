@@ -17,8 +17,8 @@ from ..models import (
     WriteupPostVersion,
 )
 from ..models.classes import likely_writeups
-from ..models.mallows import AssignWPV
-import mimir.render
+from ..models.mallows import AssignWPV, EditWriteup
+from ..render import render_all as perform_render
 
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
@@ -26,6 +26,7 @@ def index(request):
     cred = request.db_session.query(Credential).filter_by(valid=True).one_or_none()
     threads = request.db_session.query(Thread).order_by(Thread.id.asc())
     # This is somewhat expensive; there's no index on this.
+    # Also this straight up breaks if there's never been any WPVs
     max_tp = request.db_session.query(
         sa.func.max(WriteupPostVersion.threadpost_id)
     ).as_scalar()
@@ -245,7 +246,7 @@ def extracted_post_save(request):
 
 @view_config(route_name="render_all", request_method="POST")
 def render_all(request):
-    mimir.render.render_all(request)
+    perform_render(request)
     return HTTPSeeOther(location=request.route_path("rendered_toc"))
 
 
@@ -261,6 +262,29 @@ def writeup_view(request):
         .one()
     )
     return {"writeup": writeup}
+
+
+@view_config(route_name="writeup", request_method="POST")
+def save_writeup(request):
+    writeup = (
+        request.db_session.query(Writeup)
+        .options(joinedload(Writeup.posts))
+        .filter_by(id=request.matchdict["writeup_id"])
+        .one()
+    )
+    schema = EditWriteup(context={'request': request})
+    data = schema.load(request.POST)
+
+    writeup.author_slug = data['author_slug']
+    writeup.writeup_slug = data['writeup_slug']
+    writeup.title = data['title']
+    writeup.author = data['author']
+    writeup.status = data['status']
+    writeup.published = data['published']
+    writeup.offensive_content = data['offensive_content']
+    writeup.triggery_content = data['triggery_content']
+
+    return HTTPSeeOther(location=request.route_path("writeup", writeup_id=writeup.id))
 
 
 @view_config(route_name="fetch_threads", request_method="POST")

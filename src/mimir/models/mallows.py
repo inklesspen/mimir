@@ -3,8 +3,8 @@ from marshmallow import (
     post_load,
     pre_load,
     Schema,
-    ValidationError,
     validates_schema,
+    ValidationError,
 )
 
 from .classes import Writeup, WriteupPost
@@ -65,3 +65,14 @@ class AssignWPV(Schema):
             raise ValidationError(
                 "Cannot specify writeup post details when writeup_post_id present"
             )
+
+
+class EditWriteup(Schema):
+    author_slug = fields.String()
+    writeup_slug = fields.String()
+    title = fields.String()
+    author = fields.String()
+    status = fields.String()
+    published = fields.Boolean(missing=False)
+    offensive_content = fields.Boolean(missing=False)
+    triggery_content = fields.Boolean(missing=False)
