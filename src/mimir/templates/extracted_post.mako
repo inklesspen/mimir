@@ -37,7 +37,7 @@
 % endif
                 <option value="--2" disabled="disabled">--</option>
 % for wp in writeup.posts:
-                <option value=${wp.index}>${wp.ordinal} - ${wp.title} - ${wp.author}</option>
+                <option value=${wp.id}>${wp.ordinal} - ${wp.title} - ${wp.author}</option>
 % endfor
 </%def>
         <div class="form-group row" id="writeup-post-row">

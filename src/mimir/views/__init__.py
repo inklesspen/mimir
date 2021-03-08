@@ -237,10 +237,13 @@ def extracted_post_save(request):
         new_wpv.html = data["post_html"]
         new_wpv.created_at = sa.func.now()
         new_wpv.version = wpv.version + 1
-        new_wpv.active = True
+        new_wpv.thread_post = wpv.thread_post
+        new_wpv.writeup_post = wpv.writeup_post
 
-        wpv.writeup_post.versions.append(new_wpv)
-        wpv.thread_post.writeup_post_versions.append(new_wpv)
+        for _wpv in new_wpv.writeup_post.versions:
+            _wpv.active = False
+
+        new_wpv.active = True
     else:
         wpv.active = True
 
