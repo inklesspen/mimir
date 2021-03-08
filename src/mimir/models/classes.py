@@ -64,7 +64,8 @@ class Thread(Base):
     posts = relationship("ThreadPost", backref="thread")
 
     pages_by_pagenum = relationship(
-        "ThreadPage", collection_class=attribute_mapped_collection("page_num"),
+        "ThreadPage",
+        collection_class=attribute_mapped_collection("page_num"),
     )
 
     @property
@@ -75,7 +76,11 @@ class Thread(Base):
 
 
 class ThreadPage(Base):
-    __table_args__ = (UniqueConstraint("thread_id", "page_num", name="uq_thread_pages_thread_id_page_num"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "thread_id", "page_num", name="uq_thread_pages_thread_id_page_num"
+        ),
+    )
     id = Column(Integer, primary_key=True)
     thread_id = Column(Integer, ForeignKey("threads.id"), nullable=False)
     page_num = Column(Integer, nullable=False)
@@ -125,14 +130,21 @@ class ThreadPost(Base):
 
 
 class Writeup(Base):
-    __table_args__ = (UniqueConstraint("author_slug", "writeup_slug", name="uq_writeups_author_slug_writeup_slug"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "author_slug", "writeup_slug", name="uq_writeups_author_slug_writeup_slug"
+        ),
+    )
     id = Column(Integer, primary_key=True)
     author_slug = Column(String(100), nullable=False, index=True)
     writeup_slug = Column(String(100), nullable=False, index=True)
     title = Column(Unicode(100), nullable=False)
     author = Column(Unicode(100), nullable=False)
     status = Column(
-        Enum("ongoing", "abandoned", "completed", native_enum=False, name="check_status"), nullable=False
+        Enum(
+            "ongoing", "abandoned", "completed", native_enum=False, name="check_status"
+        ),
+        nullable=False,
     )
     published = Column(Boolean, nullable=False, default=False)
     # anything with offensive_content will be blocked in robots.txt
@@ -231,7 +243,9 @@ class WriteupPostVersion(Base):
 
         soup = open_soup(self.html)
         for img_tag in soup.find_all("img", attrs={"data-mirrored": "mirrored"}):
-            img_tag["src"] = request.route_path("writeup_image", filename=img_tag["src"])
+            img_tag["src"] = request.route_path(
+                "writeup_image", filename=img_tag["src"]
+            )
         html = close_soup(soup)
         return html
 

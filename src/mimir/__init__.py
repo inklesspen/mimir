@@ -27,8 +27,7 @@ def static_routes(config):
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
+    """This function returns a Pyramid WSGI application."""
     with Configurator(settings=settings) as config:
         config.add_request_method(request_hashfs, "hashfs", reify=True)
         config.add_request_method(request_renderpath, "renderpath", reify=True)

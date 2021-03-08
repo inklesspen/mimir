@@ -331,10 +331,10 @@ def writeup_post_view_save(request):
     schema = EditWriteupPost(context={"request": request})
     data = schema.load(request.POST)
 
-    post.title = data['title']
-    post.author = data['author']
-    post.ordinal = data['ordinal']
-    post.published = data['published']
+    post.title = data["title"]
+    post.author = data["author"]
+    post.ordinal = data["ordinal"]
+    post.published = data["published"]
 
     return HTTPSeeOther(
         location=request.route_path(

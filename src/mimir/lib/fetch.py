@@ -9,10 +9,12 @@ bad_codecs.ok()  # load in the sloppy codecs
 
 
 def validate_cred(cred):
-    resp = fetch_sa_page("https://forums.somethingawful.com/usercp.php", {}, cred.cookies)
+    resp = fetch_sa_page(
+        "https://forums.somethingawful.com/usercp.php", {}, cred.cookies
+    )
     soup = make_soup(resp)
-    cred.valid = soup.find(id='unregistered') is None
-    cred.username = soup.find(id='loggedinusername').text
+    cred.valid = soup.find(id="unregistered") is None
+    cred.username = soup.find(id="loggedinusername").text
 
 
 def update_thread_status(thread, cred):
