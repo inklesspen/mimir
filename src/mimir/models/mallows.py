@@ -76,3 +76,10 @@ class EditWriteup(Schema):
     published = fields.Boolean(missing=False)
     offensive_content = fields.Boolean(missing=False)
     triggery_content = fields.Boolean(missing=False)
+
+
+class EditWriteupPost(Schema):
+    title = fields.String()
+    author = fields.String()
+    ordinal = fields.Integer()
+    published = fields.Boolean(missing=False)

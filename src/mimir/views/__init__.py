@@ -2,7 +2,7 @@ from markupsafe import Markup
 from pyramid.httpexceptions import HTTPForbidden, HTTPSeeOther
 from pyramid.view import view_config
 import sqlalchemy as sa
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
 from ..lib.extract import extract_post_into_wpv
 from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
@@ -17,7 +17,7 @@ from ..models import (
     WriteupPostVersion,
 )
 from ..models.classes import likely_writeups
-from ..models.mallows import AssignWPV, EditWriteup
+from ..models.mallows import AssignWPV, EditWriteup, EditWriteupPost
 from ..render import render_all as perform_render
 
 
@@ -144,7 +144,9 @@ def extract_post(request):
 
 
 @view_config(
-    route_name="extracted_post", renderer="mimir:templates/extracted_post.mako", request_method="GET"
+    route_name="extracted_post",
+    renderer="mimir:templates/extracted_post.mako",
+    request_method="GET",
 )
 def extracted_post(request):
     wpv = (
@@ -158,7 +160,9 @@ def extracted_post(request):
     ongoing_writeups = request.db_session.query(Writeup).filter_by(status="ongoing")
     likely_writeups_query = likely_writeups(request.db_session, wpv)
 
-    other_writeups = ongoing_writeups.except_(likely_writeups_query).order_by(Writeup.title.asc(), Writeup.id.asc())
+    other_writeups = ongoing_writeups.except_(likely_writeups_query).order_by(
+        Writeup.title.asc(), Writeup.id.asc()
+    )
 
     wpv.html_markup = Markup(wpv.html_with_fixed_image_urls(request))
 
@@ -180,27 +184,27 @@ def extracted_post_save(request):
         .filter_by(id=request.matchdict["post_id"])
         .one()
     )
-    schema = AssignWPV(context={'request': request})
+    schema = AssignWPV(context={"request": request})
     data = schema.load(request.POST)
-    if 'writeup_post' in data:
+    if "writeup_post" in data:
         # existing post, new version
-        wp = data['writeup_post']
+        wp = data["writeup_post"]
         for version in wp.versions:
             version.active = False
 
         wpv.version = max([x.version for x in wp.versions]) + 1
         wp.versions.append(wpv)
 
-    elif 'writeup' in data:
+    elif "writeup" in data:
         # existing writeup, new post
-        w = data['writeup']
+        w = data["writeup"]
         new_index = len(w.posts) + 1
         wp = WriteupPost(
             author=wpv.thread_post.author,
             index=new_index,
-            ordinal='{}'.format(new_index),
-            title=data['post_title'],
-            published=True
+            ordinal="{}".format(new_index),
+            title=data["post_title"],
+            published=True,
         )
         w.posts.append(wp)
 
@@ -208,11 +212,11 @@ def extracted_post_save(request):
     else:
         # new writeup
         w = Writeup(
-            author_slug=Writeup.slugify(data['writeup_author']),
-            writeup_slug=Writeup.slugify(data['writeup_title']),
-            author=data['writeup_author'],
-            title=data['writeup_title'],
-            status='ongoing',
+            author_slug=Writeup.slugify(data["writeup_author"]),
+            writeup_slug=Writeup.slugify(data["writeup_title"]),
+            author=data["writeup_author"],
+            title=data["writeup_title"],
+            status="ongoing",
             published=True,
         )
         request.db_session.add(w)
@@ -220,17 +224,17 @@ def extracted_post_save(request):
         wp = WriteupPost(
             author=wpv.thread_post.author,
             index=1,
-            ordinal='1',
-            title=data['post_title'],
-            published=True
+            ordinal="1",
+            title=data["post_title"],
+            published=True,
         )
         w.posts.append(wp)
 
         wp.versions.append(wpv)
 
-    if 'post_html' in data:
+    if "post_html" in data:
         new_wpv = WriteupPostVersion()
-        new_wpv.html = data['post_html']
+        new_wpv.html = data["post_html"]
         new_wpv.created_at = sa.func.now()
         new_wpv.version = wpv.version + 1
         new_wpv.active = True
@@ -241,7 +245,9 @@ def extracted_post_save(request):
         wpv.active = True
 
     request.db_session.flush()
-    return HTTPSeeOther(location=request.route_path('writeup', writeup_id=wpv.writeup_post.writeup.id))
+    return HTTPSeeOther(
+        location=request.route_path("writeup", writeup_id=wpv.writeup_post.writeup.id)
+    )
 
 
 @view_config(route_name="render_all", request_method="POST")
@@ -250,9 +256,12 @@ def render_all(request):
     return HTTPSeeOther(location=request.route_path("rendered_toc"))
 
 
-@view_config(route_name="writeup", renderer="mimir:templates/writeup.mako", request_method="GET")
 @view_config(
-    route_name="writeup_post_options", renderer="mimir:templates/extracted_post#writeup_post_options.mako"
+    route_name="writeup", renderer="mimir:templates/writeup.mako", request_method="GET"
+)
+@view_config(
+    route_name="writeup_post_options",
+    renderer="mimir:templates/extracted_post#writeup_post_options.mako",
 )
 def writeup_view(request):
     writeup = (
@@ -272,19 +281,173 @@ def save_writeup(request):
         .filter_by(id=request.matchdict["writeup_id"])
         .one()
     )
-    schema = EditWriteup(context={'request': request})
+    schema = EditWriteup(context={"request": request})
     data = schema.load(request.POST)
 
-    writeup.author_slug = data['author_slug']
-    writeup.writeup_slug = data['writeup_slug']
-    writeup.title = data['title']
-    writeup.author = data['author']
-    writeup.status = data['status']
-    writeup.published = data['published']
-    writeup.offensive_content = data['offensive_content']
-    writeup.triggery_content = data['triggery_content']
+    writeup.author_slug = data["author_slug"]
+    writeup.writeup_slug = data["writeup_slug"]
+    writeup.title = data["title"]
+    writeup.author = data["author"]
+    writeup.status = data["status"]
+    writeup.published = data["published"]
+    writeup.offensive_content = data["offensive_content"]
+    writeup.triggery_content = data["triggery_content"]
 
     return HTTPSeeOther(location=request.route_path("writeup", writeup_id=writeup.id))
+
+
+@view_config(
+    route_name="writeup_post",
+    renderer="mimir:templates/writeup_post.mako",
+    request_method="GET",
+)
+def writeup_post_view(request):
+    post = (
+        request.db_session.query(WriteupPost)
+        .options(joinedload(WriteupPost.writeup))
+        .filter_by(
+            writeup_id=request.matchdict["writeup_id"],
+            index=request.matchdict["post_index"],
+        )
+        .one()
+    )
+    return {"post": post, "writeup": post.writeup}
+
+
+@view_config(
+    route_name="writeup_post",
+    request_method="POST",
+)
+def writeup_post_view_save(request):
+    post = (
+        request.db_session.query(WriteupPost)
+        .options(joinedload(WriteupPost.writeup))
+        .filter_by(
+            writeup_id=request.matchdict["writeup_id"],
+            index=request.matchdict["post_index"],
+        )
+        .one()
+    )
+    schema = EditWriteupPost(context={"request": request})
+    data = schema.load(request.POST)
+
+    post.title = data['title']
+    post.author = data['author']
+    post.ordinal = data['ordinal']
+    post.published = data['published']
+
+    return HTTPSeeOther(
+        location=request.route_path(
+            "writeup_post", writeup_id=post.writeup_id, post_index=post.index
+        )
+    )
+
+
+@view_config(
+    route_name="writeup_post_version_preview",
+    renderer="mimir:templates/writeup_post_version.mako",
+    request_method="GET",
+)
+@view_config(
+    route_name="writeup_post_version_edit",
+    renderer="mimir:templates/writeup_post_version.mako",
+    request_method="GET",
+)
+def writeup_post_version(request):
+    wpv = (
+        request.db_session.query(WriteupPostVersion)
+        .join(WriteupPost)
+        .filter(
+            WriteupPost.writeup_id == request.matchdict["writeup_id"],
+            WriteupPost.index == request.matchdict["post_index"],
+            WriteupPostVersion.version == request.matchdict["version"],
+        )
+        .options(
+            contains_eager(WriteupPostVersion.writeup_post).joinedload(
+                WriteupPost.writeup
+            )
+        )
+        .one()
+    )
+    route_name = request.matched_route.name
+    mode = route_name.split("_")[-1]
+    return {
+        "wpv": wpv,
+        "post": wpv.writeup_post,
+        "writeup": wpv.writeup_post.writeup,
+        "mode": mode,
+    }
+
+
+@view_config(
+    route_name="writeup_post_version_edit",
+    request_method="POST",
+)
+def writeup_post_version_save(request):
+    wpv = (
+        request.db_session.query(WriteupPostVersion)
+        .join(WriteupPost)
+        .filter(
+            WriteupPost.writeup_id == request.matchdict["writeup_id"],
+            WriteupPost.index == request.matchdict["post_index"],
+            WriteupPostVersion.version == request.matchdict["version"],
+        )
+        .options(
+            contains_eager(WriteupPostVersion.writeup_post).joinedload(
+                WriteupPost.writeup
+            )
+        )
+        .one()
+    )
+    wp = wpv.writeup_post
+    tp = wpv.thread_post
+    for _wpv in wp.versions:
+        _wpv.active = False
+    new_version = max([_wpv.version for _wpv in wp.versions]) + 1
+    wpv = WriteupPostVersion()
+    wpv.writeup_post = wp
+    wpv.thread_post = tp
+    wpv.html = request.POST["html"]
+    wpv.created_at = sa.func.now()
+    wpv.version = new_version
+    wpv.active = True
+    return HTTPSeeOther(
+        location=request.route_path(
+            "writeup_post", writeup_id=wp.writeup_id, post_index=wp.index
+        )
+    )
+
+
+@view_config(
+    route_name="writeup_post_version_activate",
+    request_method="POST",
+)
+def writeup_post_version_activate(request):
+    wpv = (
+        request.db_session.query(WriteupPostVersion)
+        .join(WriteupPost)
+        .filter(
+            WriteupPost.writeup_id == request.matchdict["writeup_id"],
+            WriteupPost.index == request.matchdict["post_index"],
+            WriteupPostVersion.version == request.matchdict["version"],
+        )
+        .options(
+            contains_eager(WriteupPostVersion.writeup_post).options(
+                joinedload(WriteupPost.writeup), selectinload(WriteupPost.versions)
+            )
+        )
+        .one()
+    )
+    post = wpv.writeup_post
+    for version in post.versions:
+        if version is not wpv:
+            version.active = False
+    wpv.active = True
+    return HTTPSeeOther(
+        location=request.route_path(
+            "writeup_post", writeup_id=post.writeup_id, post_index=post.index
+        )
+    )
 
 
 @view_config(route_name="fetch_threads", request_method="POST")
@@ -310,6 +473,19 @@ def includeme(config):
     config.add_route("extracted_post", "/post/{post_id}")
     config.add_route("writeup", "/writeup/{writeup_id}")
     config.add_route("writeup_post_options", "/writeup/{writeup_id}/post-options")
+    config.add_route("writeup_post", "/writeup/{writeup_id}/post/{post_index}")
+    config.add_route(
+        "writeup_post_version_preview",
+        "/writeup/{writeup_id}/post/{post_index}/version/{version}",
+    )
+    config.add_route(
+        "writeup_post_version_edit",
+        "/writeup/{writeup_id}/post/{post_index}/version/{version}/edit",
+    )
+    config.add_route(
+        "writeup_post_version_activate",
+        "/writeup/{writeup_id}/post/{post_index}/version/{version}/activate",
+    )
     config.add_route("render_all", "/render")
     config.add_route("fetch_threads", "/fetchthreads")
     config.scan()

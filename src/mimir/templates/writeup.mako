@@ -106,7 +106,7 @@ $(() => {
     <tbody>
 % for post in writeup.posts:
       <tr>
-          <td><a href="#">${post.title}</a></td>
+          <td><a href="${request.route_path('writeup_post', writeup_id=writeup.id, post_index=post.index)}">${post.title}</a></td>
           <td>${post.author}</td>
           <td>${post.ordinal}</td>
       </tr>
