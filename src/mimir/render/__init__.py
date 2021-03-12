@@ -62,6 +62,7 @@ def copy_static_files(request):
 
 def render_toc(request):
     site_title = request.registry.settings["render.site_title"]
+    contact_email = request.registry.settings["render.contact_email"]
     writeups = (
         request.db_session.query(Writeup)
         .options(joinedload(Writeup.posts))
@@ -72,7 +73,11 @@ def render_toc(request):
 
     content = pyramid.renderers.render(
         "mimir:render/toc.mako",
-        {"writeups": writeups, "site_title": site_title},
+        {
+            "writeups": writeups,
+            "site_title": site_title,
+            "contact_email": contact_email,
+        },
         request=request,
     )
 
@@ -108,15 +113,22 @@ def render_feed(request, generator, filename, batches):
     feed_title = "{} Recent Changes".format(
         request.registry.settings["render.site_title"]
     )
+    description = pyramid.renderers.render(
+        "mimir:render/toc#site_description.mako", {}, request=request
+    ).strip()
+
     feed = generator(
-        title=feed_title, link=request.route_url("rendered_toc"), language="en", description="These writeups are extracted from the SA Forum's \"FATAL & Friends\" thread. Some of them are obscure RPGs. Some of them are very bad RPGs."
+        title=feed_title,
+        link=request.route_url("rendered_toc"),
+        language="en",
+        description=description,
     )
     for batch in batches:
         batch_html = pyramid.renderers.render(
             "mimir:render/changelog#batch_feed_html.mako",
             {"batch": batch},
             request=request,
-        )
+        ).strip()
         feed.add_item(
             title=format_datetime(batch.created_at, request.display_timezone),
             link=request.route_url("rendered_changelist", _anchor=batch.id.base62),
@@ -131,6 +143,7 @@ def render_feed(request, generator, filename, batches):
 
 def render_changelog(request):
     site_title = request.registry.settings["render.site_title"]
+    contact_email = request.registry.settings["render.contact_email"]
     batches = (
         request.db_session.query(ChangeLogBatch)
         .order_by(ChangeLogBatch.id.desc())
@@ -139,7 +152,7 @@ def render_changelog(request):
     )
     content = pyramid.renderers.render(
         "mimir:render/changelog.mako",
-        {"batches": batches, "site_title": site_title},
+        {"batches": batches, "site_title": site_title, "contact_email": contact_email},
         request=request,
     )
 
@@ -155,9 +168,10 @@ def render_changelog(request):
 
 def render_writeup(request, writeup):
     site_title = request.registry.settings["render.site_title"]
+    contact_email = request.registry.settings["render.contact_email"]
     content = pyramid.renderers.render(
         "mimir:render/writeup.mako",
-        {"writeup": writeup, "site_title": site_title},
+        {"writeup": writeup, "site_title": site_title, "contact_email": contact_email},
         request=request,
     )
 

@@ -23,7 +23,7 @@
 </%block>
 
 <p>
-These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some of them are obscure RPGs. Some of them are very bad RPGs.
+${site_description()}
 </p>
 <p><a href="${request.route_path('rendered_changelist')}">Recent Changes</a> (<a href="${request.route_path('rendered_changelist_rss')}">RSS</a>, <a href="${request.route_path('rendered_changelist_atom')}">Atom</a>, or <a href="${request.route_path('rendered_changelist_json')}">JSON</a> feed)</p>
       <table class="table table-hover">
@@ -44,3 +44,6 @@ These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some 
           % endfor          
         </tbody>
       </table>
+<%def name="site_description()">
+These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some of them are obscure RPGs. Some of them are very bad RPGs.
+</%def>

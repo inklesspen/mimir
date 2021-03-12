@@ -8,6 +8,12 @@ main {
     padding: 2ch;
     margin: auto;
 }
+footer {
+    max-width: 70ch;
+    padding: 2ch;
+    margin: auto;
+    margin-top: 1.5rem;
+}
 header {
     margin-bottom: 1.5rem;
 }
