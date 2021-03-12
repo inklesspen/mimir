@@ -7,6 +7,9 @@ import zope.sqlalchemy
 from .classes import (  # noqa: F401
     AuditEntry,
     AuthorizedUser,
+    ChangeLogBatch,
+    ChangeLogGenericEntry,
+    ChangeLogWriteupEntry,
     Credential,
     FetchedImage,
     Thread,

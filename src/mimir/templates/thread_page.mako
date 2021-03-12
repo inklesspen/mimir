@@ -19,7 +19,7 @@ blockquote {
 <div>
 <form class="form-inline" action="${request.route_path('refetch_page', thread_id=thread_page.thread.id, page_num=thread_page.page_num)}" method="POST">
   <button type="submit" class="btn btn-primary mb-2">Refetch</button>
-  <label class="ml-2">Last fetched: ${thread_page.last_fetched.isoformat()}</label>
+  <label class="ml-2">Last fetched: ${thread_page.last_fetched | n,nicedt}</label>
 </form>
 </div>
 

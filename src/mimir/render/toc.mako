@@ -25,6 +25,7 @@
 <p>
 These writeups are extracted from the SA Forum's "FATAL & Friends" thread. Some of them are obscure RPGs. Some of them are very bad RPGs.
 </p>
+<p><a href="${request.route_path('rendered_changelist')}">Recent Changes</a> (<a href="${request.route_path('rendered_changelist_rss')}">RSS</a>, <a href="${request.route_path('rendered_changelist_atom')}">Atom</a>, or <a href="${request.route_path('rendered_changelist_json')}">JSON</a> feed)</p>
       <table class="table table-hover">
         <thead>
           <tr>

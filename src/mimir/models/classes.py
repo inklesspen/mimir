@@ -18,7 +18,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from .column_types import AwareDateTime
+from .column_types import AwareDateTime, Timeflake
 from .meta import Base
 
 
@@ -211,6 +211,8 @@ class WriteupPost(Base):
         ),
     )
 
+    changelog_entry = relationship("ChangeLogWriteupEntry", uselist=False)
+
     def __repr__(self):
         return '<WriteupPost {self.id} of {self.writeup!r}: {self.index}, "{self.title}">'.format(
             self=self
@@ -270,3 +272,45 @@ class FetchedImage(Base):
     # multiple original urls may map to the same id, unfortunately
     orig_url = Column(String, primary_key=True)
     id = Column(String(64), nullable=False)
+
+
+class ChangeLogBatch(Base):
+    __tablename__ = "change_log_batches"
+    id = Column(Timeflake, primary_key=True, default=Timeflake.generate)
+    created_at = Column(AwareDateTime, nullable=False, default=sa.func.now())
+
+    generic_entries = relationship(
+        "ChangeLogGenericEntry",
+        backref="batch",
+        cascade="all, delete-orphan",
+        order_by="ChangeLogGenericEntry.created_at.asc()",
+    )
+
+    writeup_entries = relationship(
+        "ChangeLogWriteupEntry",
+        backref="batch",
+        cascade="all, delete-orphan",
+        order_by="ChangeLogWriteupEntry.created_at.asc()",
+    )
+
+
+class ChangeLogGenericEntry(Base):
+    __tablename__ = "change_log_generic_entries"
+    id = Column(Integer, primary_key=True)
+    detail = Column(UnicodeText, nullable=False)
+    created_at = Column(AwareDateTime, nullable=False, default=sa.func.now())
+    changelogbatch_id = Column(
+        Timeflake, ForeignKey("change_log_batches.id"), nullable=True
+    )
+
+
+class ChangeLogWriteupEntry(Base):
+    __tablename__ = "change_log_writeup_entries"
+    id = Column(Integer, primary_key=True)
+    writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=False)
+    created_at = Column(AwareDateTime, nullable=False, default=sa.func.now())
+    changelogbatch_id = Column(
+        Timeflake, ForeignKey("change_log_batches.id"), nullable=True
+    )
+
+    writeup_post = relationship("WriteupPost", uselist=False)

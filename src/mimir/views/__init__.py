@@ -8,6 +8,8 @@ from ..lib.extract import extract_post_into_wpv
 from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
 from ..lib.split import extract_posts, extract_posts_from_pages
 from ..models import (
+    ChangeLogGenericEntry,
+    ChangeLogWriteupEntry,
     Credential,
     Thread,
     ThreadPage,
@@ -18,7 +20,7 @@ from ..models import (
 )
 from ..models.classes import likely_writeups
 from ..models.mallows import AssignWPV, EditWriteup, EditWriteupPost
-from ..render import render_all as perform_render
+from ..render import render_all as perform_full_site_render, render_changed as perform_changed_writeups_render
 
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
@@ -53,6 +55,19 @@ def index(request):
         Writeup.title.collate("writeuptitle").asc(), Writeup.author.asc()
     )
 
+    generic_entries = (
+        request.db_session.query(ChangeLogGenericEntry)
+        .filter_by(batch=None)
+        .order_by(ChangeLogGenericEntry.created_at.asc())
+        .all()
+    )
+    writeup_entries = (
+        request.db_session.query(ChangeLogWriteupEntry)
+        .filter_by(batch=None)
+        .order_by(ChangeLogWriteupEntry.created_at.asc())
+        .all()
+    )
+
     return {
         "active_cred": cred,
         "threads": threads.all(),
@@ -63,6 +78,10 @@ def index(request):
         },
         "wpvs": extracted_wpvs,
         "writeups": writeups.all(),
+        "changelog_entries": {
+            "generic": generic_entries,
+            "writeup": writeup_entries,
+        },
     }
 
 
@@ -209,6 +228,10 @@ def extracted_post_save(request):
         w.posts.append(wp)
 
         wp.versions.append(wpv)
+
+        clwe = ChangeLogWriteupEntry(writeup_post=wp)
+        request.db_session.add(clwe)
+
     else:
         # new writeup
         w = Writeup(
@@ -232,6 +255,9 @@ def extracted_post_save(request):
 
         wp.versions.append(wpv)
 
+        clwe = ChangeLogWriteupEntry(writeup_post=wp)
+        request.db_session.add(clwe)
+
     if "post_html" in data:
         new_wpv = WriteupPostVersion()
         new_wpv.html = data["post_html"]
@@ -253,9 +279,12 @@ def extracted_post_save(request):
     )
 
 
-@view_config(route_name="render_all", request_method="POST")
-def render_all(request):
-    perform_render(request)
+@view_config(route_name="render_site", request_method="POST")
+def render_site(request):
+    if 'render-all' in request.POST:
+        perform_full_site_render(request)
+    elif 'render-changed' in request.POST:
+        perform_changed_writeups_render(request)
     return HTTPSeeOther(location=request.route_path("rendered_toc"))
 
 
@@ -338,6 +367,20 @@ def writeup_post_view_save(request):
     post.author = data["author"]
     post.ordinal = data["ordinal"]
     post.published = data["published"]
+
+    if post.published:
+        clwe = ChangeLogWriteupEntry(writeup_post=post)
+        request.db_session.add(clwe)
+    else:
+        # delete ChangeLogWriteupEntry if it exists
+        with request.db_session.no_autoflush:
+            clwe = (
+                request.db_session.query(ChangeLogWriteupEntry)
+                .filter_by(writeup_post=post)
+                .one_or_none()
+            )
+            if clwe is not None:
+                request.db_session.delete(clwe)
 
     return HTTPSeeOther(
         location=request.route_path(
@@ -489,6 +532,6 @@ def includeme(config):
         "writeup_post_version_activate",
         "/writeup/{writeup_id}/post/{post_index}/version/{version}/activate",
     )
-    config.add_route("render_all", "/render")
+    config.add_route("render_site", "/render")
     config.add_route("fetch_threads", "/fetchthreads")
     config.scan()

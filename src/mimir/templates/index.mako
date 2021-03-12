@@ -1,7 +1,8 @@
 <%inherit file="layout.mako"/>
 <nav class="navbar navbar-light bg-light">
-    <form class="form-inline mr-auto" action="${request.route_path('render_all')}" method="POST">
-        <button type="submit" class="btn btn-primary my-2 my-sm-0">Render All</button>
+    <form class="form-inline mr-auto" action="${request.route_path('render_site')}" method="POST">
+        <button name="render-changed" type="submit" class="btn btn-primary my-2 my-sm-0 mr-2">Render Changed</button>
+        <button name="render-all" type="submit" class="btn btn-secondary my-2 my-sm-0">Render All</button>
     </form>
     <span class="navbar-text mr-4">
     % if active_cred:
@@ -14,6 +15,21 @@
         <button type="submit" class="btn btn-secondary my-2 my-sm-0">Fetch Threads</button>
     </form>
 </nav>
+
+<table class="table table-striped table-hover">
+<thead><tr><th>Time</th><th>Detail</th></tr></thead>
+<tbody>
+% for ge in changelog_entries['generic']:
+<tr>
+    <td>${ge.created_at | n,nicedt}</td><td>${ge.detail}</td>
+</tr>
+% endfor
+% for we in changelog_entries['writeup']:
+<tr>
+    <td>${we.created_at | n,nicedt}</td><td>${we.writeup_post.writeup.title} - ${we.writeup_post.ordinal} - ${we.writeup_post.title}</td>
+</tr>
+% endfor
+</table>
 
 <table class="table table-striped table-hover">
 <thead><tr><th>Thread</th><th>Page Count</th><th>Open/Active</th><th>Actions</th></tr></thead>

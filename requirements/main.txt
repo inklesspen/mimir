@@ -28,6 +28,14 @@ chardet==4.0.0 \
     --hash=sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa \
     --hash=sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5
     # via requests
+django-jsonfeed==0.3.1 \
+    --hash=sha256:4e59cfab439176574bcb1709233dd2409eb2f99a8de0b9bca06815e52749184b \
+    --hash=sha256:e8f8bc8de72c45cc0d80c3fa25bdcd74283d6761c95df778b38ad8af9cdb53d1
+    # via -r requirements/main.in
+feedgenerator==1.9.1 \
+    --hash=sha256:a28a5add781509390d1a6a52d017829853ee4bef1d2e7b4d5da0e9d1b395ce54 \
+    --hash=sha256:a81d240a2c74a2ae80c393cfe374aff1a19ed3fe41a488eacc66edbe46d3f422
+    # via -r requirements/main.in
 ftfy==5.9 \
     --hash=sha256:8c4fb2863c0b82eae2ab3cf353d9ade268dfbde863d322f78d6a9fd5cefb31e9
     # via -r requirements/main.in
@@ -288,7 +296,9 @@ python-editor==1.0.4 \
 pytz==2021.1 \
     --hash=sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da \
     --hash=sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798
-    # via -r requirements/main.in
+    # via
+    #   -r requirements/main.in
+    #   feedgenerator
 requests-oauthlib==1.3.0 \
     --hash=sha256:7f71572defaecd16372f9006f33c2ec8c077c3cfa6f5911a9a90202beb513f3d \
     --hash=sha256:b4261601a71fd721a8bd6d7aa1cc1d6a8a93b4a9f5e96626f8e4d91e8beeaa6a
@@ -309,6 +319,7 @@ six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced
     # via
+    #   feedgenerator
     #   google-auth
     #   html5lib
     #   oauth2client
@@ -360,6 +371,10 @@ sqlalchemy==1.3.23 \
     #   -r requirements/main.in
     #   alembic
     #   zope.sqlalchemy
+timeflake==0.3.3 \
+    --hash=sha256:41e6be9b326457d72119ea13abb7452ba4727fd82b98c576f98e1cf3039a08d6 \
+    --hash=sha256:749e1443b84aa4c5ed2aba321829e70504744f6fb634cf2d6cf36ef47f81ef36
+    # via -r requirements/main.in
 transaction==3.0.1 \
     --hash=sha256:0c15ef0b7ff3518357ceea75722a30d974c3f85e11aa5cec5d5a2b6a40cfcf68 \
     --hash=sha256:2329a6e6b82d1d8d4de9267ea6ee790532c375e5911d3c7633a234e94a4a0a9e

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
-    <title><%block name="title">FATAL & Friends</%block></title>
+    <title><%block name="title">${site_title}</%block></title>
     <link href="${request.route_path('rendered_static_file', filename='styles.css')}" rel="stylesheet">
 <%block name="in_header"/>
 </head>

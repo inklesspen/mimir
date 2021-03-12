@@ -22,5 +22,6 @@ python-dateutil
 pytz
 requests
 google-auth-oauthlib
-
-
+timeflake
+feedgenerator
+django-jsonfeed
