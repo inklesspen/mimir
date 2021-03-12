@@ -31,9 +31,9 @@ click==7.1.2 \
 flake8-black==0.2.1 \
     --hash=sha256:f26651bc10db786c03f4093414f7c9ea982ed8a244cec323c984feeffdf4c118
     # via -r requirements/dev.in
-flake8-bugbear==20.11.1 \
-    --hash=sha256:528020129fea2dea33a466b9d64ab650aa3e5f9ffc788b70ea4bc6cf18283538 \
-    --hash=sha256:f35b8135ece7a014bc0aee5b5d485334ac30a6da48494998cc1fabf7ec70d703
+flake8-bugbear==21.3.2 \
+    --hash=sha256:5d6ccb0c0676c738a6e066b4d50589c408dcc1c5bf1d73b464b18b73cd6c05c2 \
+    --hash=sha256:cadce434ceef96463b45a7c3000f23527c04ea4b531d16c7ac8886051f516ca0
     # via -r requirements/dev.in
 flake8-import-order==0.18.1 \
     --hash=sha256:90a80e46886259b9c396b578d75c749801a41ee969a235e163cfe1be7afd2543 \
@@ -55,7 +55,8 @@ iniconfig==1.1.1 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
     # via pytest
 mako==1.1.4 \
-    --hash=sha256:17831f0b7087c313c0ffae2bcbbd3c1d5ba9eeac9c38f2eb7b50e8c99fe9d5ab
+    --hash=sha256:17831f0b7087c313c0ffae2bcbbd3c1d5ba9eeac9c38f2eb7b50e8c99fe9d5ab \
+    --hash=sha256:aea166356da44b9b830c8023cd9b557fa856bd8b4035d6de771ca027dfc5cc6e
     # via pyramid-mako
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
@@ -159,9 +160,9 @@ pyflakes==2.2.0 \
     --hash=sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92 \
     --hash=sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8
     # via flake8
-pygments==2.8.0 \
-    --hash=sha256:37a13ba168a02ac54cc5891a42b1caec333e59b66addb7fa633ea8a6d73445c0 \
-    --hash=sha256:b21b072d0ccdf29297a82a2363359d99623597b8a265b8081760e4d0f7153c88
+pygments==2.8.1 \
+    --hash=sha256:2656e1a6edcdabf4275f9a3640db59fd5de107d88e8663c5d4e9a0fa62f77f94 \
+    --hash=sha256:534ef71d539ae97d4c3a4cf7d6f110f214b0e687e92f9cb9d2a3b0d3101289c8
     # via pyramid-debugtoolbar
 pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
@@ -291,9 +292,9 @@ venusian==3.0.0 \
     --hash=sha256:06e7385786ad3a15c70740b2af8d30dfb063a946a851dcb4159f9e2a2302578f \
     --hash=sha256:f6842b7242b1039c0c28f6feef29016e7e7dd3caaeb476a193acf737db31ee38
     # via pyramid
-waitress==1.4.4 \
-    --hash=sha256:1bb436508a7487ac6cb097ae7a7fe5413aefca610550baf58f0940e51ecfb261 \
-    --hash=sha256:3d633e78149eb83b60a07dfabb35579c29aac2d24bb803c18b26fb2ab1a584db
+waitress==2.0.0 \
+    --hash=sha256:29af5a53e9fb4e158f525367678b50053808ca6c21ba585754c77d790008c746 \
+    --hash=sha256:69e1f242c7f80273490d3403c3976f3ac3b26e289856936d1f620ed48f321897
     # via webtest
 webob==1.8.7 \
     --hash=sha256:73aae30359291c14fa3b956f8b5ca31960e420c28c1bec002547fb04928cf89b \
