@@ -5,8 +5,6 @@ import zope.sqlalchemy
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
 from .classes import (  # noqa: F401
-    AuditEntry,
-    AuthorizedUser,
     ChangeLogBatch,
     ChangeLogGenericEntry,
     ChangeLogWriteupEntry,

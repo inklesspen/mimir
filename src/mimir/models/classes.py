@@ -22,35 +22,12 @@ from .column_types import AwareDateTime, Timeflake
 from .meta import Base
 
 
-class AuthorizedUser(Base):
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), nullable=False, unique=True)
-    name = Column(Unicode, nullable=False)
-
-    @classmethod
-    def check(cls, candidate_username, request):
-        users = request.registry.settings["users"]
-        if candidate_username in users:
-            return []
-        return None
-
-
 class Credential(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(100), unique=True)
     cookies = Column(JSONB, nullable=False)
     timezone = Column(String(32), nullable=False)
     valid = Column(Boolean, nullable=False, default=sa.true())
-
-
-class AuditEntry(Base):
-    __tablename__ = "audit_entries"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("authorized_users.id"), nullable=False)
-    text = Column(Unicode, nullable=False)
-    timestamp = Column(AwareDateTime, nullable=False)
-
-    user = relationship("AuthorizedUser", uselist=False)
 
 
 class Thread(Base):
