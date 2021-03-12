@@ -15,13 +15,12 @@ hashfs
 html5lib
 lxml
 marshmallow
-oauth2client
 Pillow
 psycopg2
 python-dateutil
 pytz
 requests
-google-auth-oauthlib
 timeflake
 feedgenerator
 django-jsonfeed
+passlib[argon2]

@@ -6,13 +6,17 @@
     </form>
     <span class="navbar-text mr-4">
     % if active_cred:
-    Signed in: ${active_cred.username}
+    SA Username: ${active_cred.username}
     % else:
-    Signed out
+    Signed out of SA
     % endif
     </span>
-    <form class="form-inline my-2 my-lg-0" action="${request.route_path('fetch_threads')}" method="POST">
+    <form class="form-inline my-2 my-lg-0 mr-auto" action="${request.route_path('fetch_threads')}" method="POST">
         <button type="submit" class="btn btn-secondary my-2 my-sm-0">Fetch Threads</button>
+    </form>
+    <span class="navbar-text mr-4">Mimir Username: ${request.authenticated_userid}</span>
+    <form class="form-inline my-2 my-lg-0" action="${request.route_path('logout')}" method="POST">
+        <button type="submit" class="btn btn-danger my-2 my-sm-0">Logout</button>
     </form>
 </nav>
 

@@ -1,5 +1,6 @@
 from markupsafe import Markup
-from pyramid.httpexceptions import HTTPForbidden, HTTPSeeOther
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized, HTTPSeeOther
+from pyramid.security import forget, remember, NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 import sqlalchemy as sa
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
@@ -20,7 +21,10 @@ from ..models import (
 )
 from ..models.classes import likely_writeups
 from ..models.mallows import AssignWPV, EditWriteup, EditWriteupPost
-from ..render import render_all as perform_full_site_render, render_changed as perform_changed_writeups_render
+from ..render import (
+    render_all as perform_full_site_render,
+    render_changed as perform_changed_writeups_render,
+)
 
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
@@ -281,9 +285,9 @@ def extracted_post_save(request):
 
 @view_config(route_name="render_site", request_method="POST")
 def render_site(request):
-    if 'render-all' in request.POST:
+    if "render-all" in request.POST:
         perform_full_site_render(request)
-    elif 'render-changed' in request.POST:
+    elif "render-changed" in request.POST:
         perform_changed_writeups_render(request)
     return HTTPSeeOther(location=request.route_path("rendered_toc"))
 
@@ -511,8 +515,40 @@ def fetch_threads(request):
     return HTTPSeeOther(location=request.route_path("index"))
 
 
+@view_config(
+    route_name="login",
+    renderer="mimir:templates/login.mako",
+    request_method="GET",
+    permission=NO_PERMISSION_REQUIRED,
+)
+def login_form(request):
+    return {}
+
+
+@view_config(
+    route_name="login",
+    request_method="POST",
+    permission=NO_PERMISSION_REQUIRED,
+)
+def login(request):
+    username = request.POST["username"]
+    if request.check_login(username, request.POST["password"]):
+        headers = remember(request, username)
+        return HTTPSeeOther(location=request.route_path("index"), headers=headers)
+    raise HTTPUnauthorized()
+
+
+@view_config(route_name="logout", request_method="POST")
+def logout(request):
+    headers = forget(request)
+    return HTTPSeeOther(location=request.route_path("login"), headers=headers)
+
+
 def includeme(config):
+    config.set_default_permission("access")
     config.add_route("index", "/")
+    config.add_route("login", "/login")
+    config.add_route("logout", "/logout")
     config.add_route("thread_page", "/threads/{thread_id}/page/{page_num}")
     config.add_route("refetch_page", "/threads/{thread_id}/page/{page_num}/:refetch")
     config.add_route("extract_post", "/post/{post_id}/:extract")
