@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 
 from pyramid.paster import bootstrap, setup_logging
@@ -18,6 +19,8 @@ parser.add_argument(
     help="The URI to the configuration file.",
 )
 
+exc_logger = logging.getLogger("exc_logger")
+
 
 def fetch_threads(db_session):
     cred = db_session.query(Credential).filter_by(valid=True).one()
@@ -36,5 +39,8 @@ def main(argv=sys.argv):
     setup_logging(args.config_uri)
     with bootstrap(args.config_uri) as env:
         env["request"].tm.begin()
-        fetch_threads(env["request"].db_session)
+        try:
+            fetch_threads(env["request"].db_session)
+        except Exception:
+            exc_logger.exception("Error in worker")
         env["request"].tm.commit()

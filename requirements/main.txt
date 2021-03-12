@@ -290,6 +290,10 @@ pycparser==2.20 \
     --hash=sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0 \
     --hash=sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705
     # via cffi
+pyramid-exclog==1.0 \
+    --hash=sha256:9ddb5035c0fbd9e71dea07269944ed54c2f1758601ac239de3c4e451386c63ba \
+    --hash=sha256:d05ced5c12407507154de6750036bc83861b85c11be70b3ec3098c929652c14b
+    # via -r requirements/main.in
 pyramid-mako==1.1.0 \
     --hash=sha256:0066c863441f1c3ddea60cee1ccc50d00a91a317a8052ca44131da1a12a840e2 \
     --hash=sha256:76104592d292b6974cf7080aa52405c51f396a621535f01e274d7fe546e85a43
@@ -307,6 +311,7 @@ pyramid==2.0 \
     --hash=sha256:de7f097fa2fa43bead1f690761e56594d24954ae7dc7cbf69a5d84bb75c5a099
     # via
     #   -r requirements/main.in
+    #   pyramid-exclog
     #   pyramid-mako
     #   pyramid-retry
     #   pyramid-tm
