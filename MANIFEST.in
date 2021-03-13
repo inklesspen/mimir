@@ -1,2 +1,3 @@
 include *.txt *.ini *.cfg *.rst
-recursive-include mimir *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.jinja2
+recursive-include src/mimir *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.jinja2
+recursive-include src/mimir/alembic *.py
