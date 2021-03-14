@@ -10,12 +10,20 @@ from marshmallow import (
 from .classes import Writeup, WriteupPost
 
 
+# from https://github.com/marshmallow-code/marshmallow/issues/1391
+class TrimmedString(fields.String):
+    def _deserialize(self, value, *args, **kwargs):
+        if hasattr(value, "strip"):
+            value = value.strip()
+        return super()._deserialize(value, *args, **kwargs)
+
+
 class AssignWPV(Schema):
     writeup_id = fields.Integer()
     writeup_post_id = fields.Integer()
-    writeup_title = fields.String()
-    writeup_author = fields.String()
-    post_title = fields.String()
+    writeup_title = TrimmedString()
+    writeup_author = TrimmedString()
+    post_title = TrimmedString()
     post_html = fields.String()
 
     @pre_load
@@ -68,10 +76,10 @@ class AssignWPV(Schema):
 
 
 class EditWriteup(Schema):
-    author_slug = fields.String()
-    writeup_slug = fields.String()
-    title = fields.String()
-    author = fields.String()
+    author_slug = TrimmedString()
+    writeup_slug = TrimmedString()
+    title = TrimmedString()
+    author = TrimmedString()
     status = fields.String()
     published = fields.Boolean(missing=False)
     offensive_content = fields.Boolean(missing=False)
@@ -79,7 +87,7 @@ class EditWriteup(Schema):
 
 
 class EditWriteupPost(Schema):
-    title = fields.String()
-    author = fields.String()
+    title = TrimmedString()
+    author = TrimmedString()
     ordinal = fields.Integer()
     published = fields.Boolean(missing=False)

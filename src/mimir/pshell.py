@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from . import models
 
 
@@ -11,3 +13,4 @@ def setup(env):
     env["tm"] = request.tm
     env["db_session"] = request.db_session
     env["models"] = models
+    env["sa"] = sqlalchemy
