@@ -1,6 +1,10 @@
 <%inherit file="layout.mako"/>
 <%block name="title">${parent.title()} &mdash; ${writeup.title}</%block>
-
+<%block name="in_header">
+% if writeup.offensive_content:
+<meta name="robots" content="noindex, noarchive">
+% endif
+</%block>
 <div class="page-header">
   <h1>${writeup.title} <small>by ${writeup.author}</small></h1>
 </div>
