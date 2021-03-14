@@ -1,4 +1,11 @@
 <%inherit file="layout.mako"/>
+<%block name="in_header">
+<style type="text/css">
+caption {
+    caption-side: top;
+}
+</style>
+</%block>
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline mr-auto" action="${request.route_path('render_site')}" method="POST">
         <button name="render-changed" type="submit" class="btn btn-primary my-2 my-sm-0 mr-2">Render Changed</button>
@@ -21,6 +28,7 @@
 </nav>
 
 <table class="table table-striped table-hover">
+<caption>Pending Changes</caption>
 <thead><tr><th>Time</th><th>Detail</th></tr></thead>
 <tbody>
 % for ge in changelog_entries['generic']:
@@ -36,6 +44,7 @@
 </table>
 
 <table class="table table-striped table-hover">
+<caption>Threads</caption>
 <thead><tr><th>Thread</th><th>Page Count</th><th>Open/Active</th><th>Actions</th></tr></thead>
 <tbody>
 % for thread in threads:
@@ -71,6 +80,7 @@
 </div>
 
 <table class="table table-striped table-hover">
+<caption>Writeups</caption>
 <thead><tr><th>Writeup</th><th>Author</th><th>Status</th><th>Published</th></tr></thead>
 <tbody>
 % for writeup in writeups:
