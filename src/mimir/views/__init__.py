@@ -1,11 +1,11 @@
 from markupsafe import Markup
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized, HTTPSeeOther
-from pyramid.security import forget, remember, NO_PERMISSION_REQUIRED
+from pyramid.httpexceptions import HTTPForbidden, HTTPSeeOther, HTTPUnauthorized
+from pyramid.security import forget, NO_PERMISSION_REQUIRED, remember
 from pyramid.view import view_config
 import sqlalchemy as sa
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
-from ..lib.extract import extract_post_into_wpv, extract_post_from_wpv
+from ..lib.extract import extract_post_from_wpv, extract_post_into_wpv
 from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
 from ..lib.split import extract_posts, extract_posts_from_pages
 from ..models import (
