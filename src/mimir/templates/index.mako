@@ -7,6 +7,9 @@ caption {
 </style>
 </%block>
 <nav class="navbar navbar-light bg-light">
+    <button class="btn btn-outline-info mr-2" type="button" data-toggle="collapse" data-target="#pending-changes" aria-expanded="false" aria-controls="pending-changes">
+    Pending Changes
+  </button>
     <form class="form-inline mr-auto" action="${request.route_path('render_site')}" method="POST">
         <button name="render-changed" type="submit" class="btn btn-primary my-2 my-sm-0 mr-2">Render Changed</button>
         <button name="render-all" type="submit" class="btn btn-secondary my-2 my-sm-0">Render All</button>
@@ -27,6 +30,7 @@ caption {
     </form>
 </nav>
 
+<div id="pending-changes" class="collapse">
 <table class="table table-striped table-hover">
 <caption>Pending Changes</caption>
 <thead><tr><th>Time</th><th>Detail</th></tr></thead>
@@ -42,6 +46,7 @@ caption {
 </tr>
 % endfor
 </table>
+</div>
 
 <table class="table table-striped table-hover">
 <caption>Threads</caption>
