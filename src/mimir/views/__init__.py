@@ -315,7 +315,7 @@ def writeup_view(request):
 
 
 @view_config(route_name="writeup", request_method="POST")
-def save_writeup(request):
+def writeup_save(request):
     writeup = (
         request.db_session.query(Writeup)
         .options(joinedload(Writeup.posts))
@@ -359,7 +359,7 @@ def writeup_post_view(request):
     route_name="writeup_post",
     request_method="POST",
 )
-def writeup_post_view_save(request):
+def writeup_post_save(request):
     post = (
         request.db_session.query(WriteupPost)
         .options(joinedload(WriteupPost.writeup))
