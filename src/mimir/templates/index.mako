@@ -45,7 +45,6 @@
     <td>${"□" if thread.closed else "☑︎"}</td>
     <td>
         <ul class="list-inline">
-            ## <li class="list-inline-item">Mark Open/Closed (TODO)</li>
             <li class="list-inline-item"><a href="${thread.url}">Visit on SA</a></li>
 % if thread.id == last_extracted_post['thread_id']:
             <li class="list-inline-item"><a href="${request.route_path('thread_page', thread_id=thread.id, page_num=last_extracted_post['page_num'], _anchor='post-{}'.format(last_extracted_post['post_id']))}">Last Extracted</a></li>
@@ -56,7 +55,6 @@
 % endfor
 </tbody>
 </table>
-## TODO: some kind of add thread function
 
 <div>
 % for wpv in wpvs:
