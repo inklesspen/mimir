@@ -208,7 +208,6 @@ def render_all(request):
     output = set()
     output.update(copy_static_files(request))
     output.update(render_toc(request))
-    output.update(render_changelog(request))
     for writeup in (
         request.db_session.query(Writeup)
         .options(joinedload(Writeup.posts).joinedload(WriteupPost.active_version))
