@@ -5,7 +5,7 @@ from pyramid.view import view_config
 import sqlalchemy as sa
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
-from ..lib.extract import extract_post_into_wpv
+from ..lib.extract import extract_post_into_wpv, extract_post_from_wpv
 from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
 from ..lib.split import extract_posts, extract_posts_from_pages
 from ..models import (
@@ -274,10 +274,15 @@ def extracted_post_save(request):
             _wpv.active = False
 
         new_wpv.active = True
+
+        request.db_session.flush()
+        # reprocess images
+        extract_post_from_wpv(request, new_wpv, self_html=True)
+
     else:
         wpv.active = True
+        request.db_session.flush()
 
-    request.db_session.flush()
     return HTTPSeeOther(
         location=request.route_path("writeup", writeup_id=wpv.writeup_post.writeup.id)
     )
@@ -461,6 +466,11 @@ def writeup_post_version_save(request):
     wpv.created_at = sa.func.now()
     wpv.version = new_version
     wpv.active = True
+
+    request.db_session.flush()
+    # reprocess images
+    extract_post_from_wpv(request, wpv, self_html=True)
+
     return HTTPSeeOther(
         location=request.route_path(
             "writeup_post", writeup_id=wp.writeup_id, post_index=wp.index
