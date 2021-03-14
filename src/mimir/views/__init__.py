@@ -372,24 +372,27 @@ def writeup_post_save(request):
     schema = EditWriteupPost(context={"request": request})
     data = schema.load(request.POST)
 
+    prior_published = post.published
+
     post.title = data["title"]
     post.author = data["author"]
     post.ordinal = data["ordinal"]
     post.published = data["published"]
 
-    if post.published:
-        clwe = ChangeLogWriteupEntry(writeup_post=post)
-        request.db_session.add(clwe)
-    else:
-        # delete ChangeLogWriteupEntry if it exists
-        with request.db_session.no_autoflush:
-            clwe = (
-                request.db_session.query(ChangeLogWriteupEntry)
-                .filter_by(writeup_post=post)
-                .one_or_none()
-            )
-            if clwe is not None:
-                request.db_session.delete(clwe)
+    if prior_published != post.published:
+        if post.published:
+            clwe = ChangeLogWriteupEntry(writeup_post=post)
+            request.db_session.add(clwe)
+        else:
+            # delete ChangeLogWriteupEntry if it exists
+            with request.db_session.no_autoflush:
+                clwe = (
+                    request.db_session.query(ChangeLogWriteupEntry)
+                    .filter_by(writeup_post=post)
+                    .one_or_none()
+                )
+                if clwe is not None:
+                    request.db_session.delete(clwe)
 
     return HTTPSeeOther(
         location=request.route_path(
