@@ -1,10 +1,10 @@
-import pathlib
 import zoneinfo
 
 import hashfs
 from pyramid.config import Configurator
 from pyramid.events import BeforeRender
 
+from .render import Renderer
 from .util import format_datetime
 
 
@@ -19,8 +19,8 @@ def request_hashfs(request):
     return fs
 
 
-def request_renderpath(request):
-    return pathlib.Path(request.registry.settings["render.location"])
+def request_output_renderer(request):
+    return Renderer(request)
 
 
 def request_display_timezone(request):
@@ -47,7 +47,7 @@ def main(global_config, **settings):
     """This function returns a Pyramid WSGI application."""
     with Configurator(settings=settings) as config:
         config.add_request_method(request_hashfs, "hashfs", reify=True)
-        config.add_request_method(request_renderpath, "renderpath", reify=True)
+        config.add_request_method(request_output_renderer, "output_renderer", reify=True)
         config.add_request_method(
             request_display_timezone, "display_timezone", reify=True
         )

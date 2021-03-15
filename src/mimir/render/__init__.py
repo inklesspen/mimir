@@ -17,202 +17,156 @@ from ..models import (
 from ..util import format_datetime
 
 
-# Need a way to delete non-published files
-# Have copy/render methods return a list of Path objects
-# Then can delete files which aren't in the list?
-# set([p for p in request.renderpath.glob('**/*') if p.is_file()])
-# https://stackoverflow.com/a/25675649
-# https://stackoverflow.com/a/54216885
-
-# create class, install class on request obj in mimir/__init__ instead of path obj
+def ensure_path(path):
+    path.mkdir(parents=True, exist_ok=True)
 
 
 class Renderer(object):
     def __init__(self, request):
+        # ideally we wouldn't need to keep this, but renderers use it
+        self.request = request
+        self.db_session = request.db_session
         self.render_path = pathlib.Path(request.registry.settings["render.location"])
+        self.site_title = request.registry.settings["render.site_title"]
+        self.contact_email = request.registry.settings["render.contact_email"]
 
+    @staticmethod
+    def write_html(path, contents):
+        ensure_path(path.parent)
+        path.write_text(contents, encoding="utf-8")
 
-def write_html(path, contents):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(contents, encoding="utf-8")
+    def _copy_static_files(self):
+        static_dest = self.render_path / "static"
+        ensure_path(static_dest)
+        filenames = pkg_resources.resource_listdir("mimir", "render/static")
+        for filename in filenames:
+            outpath = static_dest / filename
+            with outpath.open(mode="wb") as out:
+                copyfileobj(
+                    pkg_resources.resource_stream(
+                        "mimir", "/".join(["render/static", filename])
+                    ),
+                    out,
+                )
 
+    def _render_template(self, template, **data):
+        data["site_title"] = self.site_title
+        data["contact_email"] = self.contact_email
 
-def write_feed(path, feed):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    feed.write(path.open("w", encoding="utf-8"), "utf-8")
+        return pyramid.renderers.render(template, data, request=self.request).strip()
 
-
-def copy_static_files(request):
-    output = set()
-    static_dest = request.renderpath / "static"
-    static_dest.mkdir(parents=True, exist_ok=True)
-    filenames = pkg_resources.resource_listdir("mimir", "render/static")
-    for filename in filenames:
-        outpath = static_dest / filename
-        with outpath.open(mode="wb") as out:
-            copyfileobj(
-                pkg_resources.resource_stream(
-                    "mimir", "/".join(["render/static", filename])
-                ),
-                out,
-            )
-        output.add(outpath)
-    return output
-
-
-def render_toc(request):
-    site_title = request.registry.settings["render.site_title"]
-    contact_email = request.registry.settings["render.contact_email"]
-    writeups = (
-        request.db_session.query(Writeup)
-        .options(joinedload(Writeup.posts))
-        .filter_by(published=True)
-        .order_by(Writeup.title.collate("writeuptitle").asc(), Writeup.id.asc())
-        .all()
-    )
-
-    content = pyramid.renderers.render(
-        "mimir:render/toc.mako",
-        {
-            "writeups": writeups,
-            "site_title": site_title,
-            "contact_email": contact_email,
-        },
-        request=request,
-    )
-
-    outpath = request.renderpath / "index.html"
-    write_html(outpath, content)
-    return set([outpath])
-
-
-def make_changelog_batch(request):
-    generic_entries = (
-        request.db_session.query(ChangeLogGenericEntry)
-        .filter_by(batch=None)
-        .order_by(ChangeLogGenericEntry.created_at.asc())
-        .all()
-    )
-    writeup_entries = (
-        request.db_session.query(ChangeLogWriteupEntry)
-        .filter_by(batch=None)
-        .order_by(ChangeLogWriteupEntry.created_at.asc())
-        .all()
-    )
-    if len(generic_entries) == 0 and len(writeup_entries) == 0:
-        return None
-    batch = ChangeLogBatch()
-    request.db_session.add(batch)
-    for entry in generic_entries + writeup_entries:
-        entry.batch = batch
-    request.db_session.flush()
-    return batch
-
-
-def render_feed(request, generator, filename, batches):
-    feed_title = "{} Recent Changes".format(
-        request.registry.settings["render.site_title"]
-    )
-    description = pyramid.renderers.render(
-        "mimir:render/toc#site_description.mako", {}, request=request
-    ).strip()
-
-    feed = generator(
-        title=feed_title,
-        link=request.route_url("rendered_toc"),
-        language="en",
-        description=description,
-    )
-    for batch in batches:
-        batch_html = pyramid.renderers.render(
-            "mimir:render/changelog#batch_feed_html.mako",
-            {"batch": batch},
-            request=request,
-        ).strip()
-        feed.add_item(
-            title=format_datetime(batch.created_at, request.display_timezone),
-            link=request.route_url("rendered_changelist", _anchor=batch.id.base62),
-            unique_id=batch.id.base62,
-            pubdate=batch.created_at,
-            description=batch_html,
+    def _render_toc(self):
+        writeups = (
+            self.db_session.query(Writeup)
+            .options(joinedload(Writeup.posts))
+            .filter_by(published=True)
+            .order_by(Writeup.title.collate("writeuptitle").asc(), Writeup.id.asc())
+            .all()
         )
-    outpath = request.renderpath / "changes" / filename
-    write_feed(outpath, feed)
-    return outpath
 
+        content = self._render_template("mimir:render/toc.mako", writeups=writeups)
 
-def render_changelog(request):
-    site_title = request.registry.settings["render.site_title"]
-    contact_email = request.registry.settings["render.contact_email"]
-    batches = (
-        request.db_session.query(ChangeLogBatch)
-        .order_by(ChangeLogBatch.id.desc())
-        .limit(20)
-        .all()
-    )
-    content = pyramid.renderers.render(
-        "mimir:render/changelog.mako",
-        {"batches": batches, "site_title": site_title, "contact_email": contact_email},
-        request=request,
-    )
+        outpath = self.render_path / "index.html"
+        self.write_html(outpath, content)
 
-    outpath_html = request.renderpath / "changes" / "index.html"
-    write_html(outpath_html, content)
+    def _render_writeup(self, writeup):
+        content = self._render_template("mimir:render/writeup.mako", writeup=writeup)
 
-    outpath_rss = render_feed(request, feedgenerator.Rss201rev2Feed, "rss.xml", batches)
-    outpath_atom = render_feed(request, feedgenerator.Atom1Feed, "atom.xml", batches)
-    outpath_json = render_feed(request, JSONFeed, "feed.json", batches)
+        outpath = (
+            self.render_path / writeup.author_slug / writeup.writeup_slug / "index.html"
+        )
+        self.write_html(outpath, content)
 
-    return set([outpath_html, outpath_rss, outpath_atom, outpath_json])
+    def _render_feed(self, generator, filename, batches):
+        feed_title = "{} Recent Changes".format(self.site_title)
+        description = self._render_template("mimir:render/toc#site_description.mako")
 
+        feed = generator(
+            title=feed_title,
+            link=self.request.route_url("rendered_toc"),
+            language="en",
+            description=description,
+        )
+        for batch in batches:
+            batch_html = self._render_template(
+                "mimir:render/changelog#batch_feed_html.mako", batch=batch
+            )
+            feed.add_item(
+                title=format_datetime(batch.created_at, self.request.display_timezone),
+                link=self.request.route_url(
+                    "rendered_changelist", _anchor=batch.id.base62
+                ),
+                unique_id=batch.id.base62,
+                pubdate=batch.created_at,
+                description=batch_html,
+            )
+        outpath = self.render_path / "changes" / filename
+        ensure_path(outpath.parent)
+        feed.write(outpath.open("w", encoding="utf-8"), "utf-8")
 
-def render_writeup(request, writeup):
-    site_title = request.registry.settings["render.site_title"]
-    contact_email = request.registry.settings["render.contact_email"]
-    content = pyramid.renderers.render(
-        "mimir:render/writeup.mako",
-        {"writeup": writeup, "site_title": site_title, "contact_email": contact_email},
-        request=request,
-    )
+    def _make_changelog_batch(self):
+        generic_entries = (
+            self.db_session.query(ChangeLogGenericEntry)
+            .filter_by(batch=None)
+            .order_by(ChangeLogGenericEntry.created_at.asc())
+            .all()
+        )
+        writeup_entries = (
+            self.db_session.query(ChangeLogWriteupEntry)
+            .filter_by(batch=None)
+            .order_by(ChangeLogWriteupEntry.created_at.asc())
+            .all()
+        )
+        if len(generic_entries) == 0 and len(writeup_entries) == 0:
+            return None
+        batch = ChangeLogBatch()
+        self.db_session.add(batch)
+        for entry in generic_entries + writeup_entries:
+            entry.batch = batch
+        self.db_session.flush()
+        return batch
 
-    outpath = (
-        request.renderpath / writeup.author_slug / writeup.writeup_slug / "index.html"
-    )
-    write_html(outpath, content)
-    return set([outpath])
+    def _render_changelog(self):
+        batches = (
+            self.db_session.query(ChangeLogBatch)
+            .order_by(ChangeLogBatch.id.desc())
+            .limit(20)
+            .all()
+        )
+        content = self._render_template("mimir:render/changelog.mako", batches=batches)
 
+        outpath_html = self.render_path / "changes" / "index.html"
+        self.write_html(outpath_html, content)
 
-def render_changed(request):
-    output = set()
-    batch = make_changelog_batch(request)
-    if batch is None:
-        return output
+        self._render_feed(feedgenerator.Rss201rev2Feed, "rss.xml", batches)
+        self._render_feed(feedgenerator.Atom1Feed, "atom.xml", batches)
+        self._render_feed(JSONFeed, "feed.json", batches)
 
-    output.update(copy_static_files(request))
-    output.update(render_toc(request))
+    def render_changed(self):
+        batch = self._make_changelog_batch()
+        if batch is None:
+            return
 
-    rendered_writeups = set()
-    for writeup_entry in batch.writeup_entries:
-        writeup = writeup_entry.writeup_post.writeup
-        if writeup.id in rendered_writeups:
-            continue
-        output.update(render_writeup(request, writeup))
-        rendered_writeups.add(writeup.id)
+        self._copy_static_files()
+        self._render_toc()
 
-    output.update(render_changelog(request))
-    return output
+        rendered_writeups = set()
+        for writeup_entry in batch.writeup_entries:
+            writeup = writeup_entry.writeup_post.writeup
+            if writeup.id in rendered_writeups or not writeup.published:
+                continue
+            self._render_writeup(writeup)
 
+        self._render_changelog()
 
-def render_all(request):
-    make_changelog_batch(request)
-    output = set()
-    output.update(copy_static_files(request))
-    output.update(render_toc(request))
-    for writeup in (
-        request.db_session.query(Writeup)
-        .options(joinedload(Writeup.posts).joinedload(WriteupPost.active_version))
-        .filter_by(published=True)
-    ):
-        output.update(render_writeup(request, writeup))
-    output.update(render_changelog(request))
-    return output
+    def render_all(self):
+        self._make_changelog_batch()
+        self._copy_static_files()
+        self._render_toc()
+        for writeup in (
+            self.db_session.query(Writeup)
+            .options(joinedload(Writeup.posts).joinedload(WriteupPost.active_version))
+            .filter_by(published=True)
+        ):
+            self._render_writeup(writeup)
+        self._render_changelog()

@@ -21,10 +21,6 @@ from ..models import (
 )
 from ..models.classes import likely_writeups
 from ..models.mallows import AssignWPV, EditWriteup, EditWriteupPost
-from ..render import (
-    render_all as perform_full_site_render,
-    render_changed as perform_changed_writeups_render,
-)
 
 
 @view_config(route_name="index", renderer="mimir:templates/index.mako")
@@ -291,9 +287,9 @@ def extracted_post_save(request):
 @view_config(route_name="render_site", request_method="POST")
 def render_site(request):
     if "render-all" in request.POST:
-        perform_full_site_render(request)
+        request.output_renderer.render_all()
     elif "render-changed" in request.POST:
-        perform_changed_writeups_render(request)
+        request.output_renderer.render_changed()
     return HTTPSeeOther(location=request.route_path("rendered_toc"))
 
 
