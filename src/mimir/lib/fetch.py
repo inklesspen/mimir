@@ -30,45 +30,52 @@ def determine_fetches(db_session, cred):
         update_thread_status(thread, cred)
     db_session.flush()
     incomplete_page_ids = (
-        sa.select([ThreadPost.page_id])
+        sa.select(ThreadPost.page_id)
         .group_by(ThreadPost.page_id)
         .having(sa.func.count(ThreadPost.id) < 40)
-        .as_scalar()
+        .scalar_subquery()
     )
-    incomplete_pages = sa.select(
-        [ThreadPage.thread_id, ThreadPage.page_num],
-        from_obj=sa.join(ThreadPage, Thread),
-    ).where(
-        sa.and_(ThreadPage.id.in_(incomplete_page_ids), Thread.closed == sa.false())
+    incomplete_pages = (
+        sa.select(
+            ThreadPage.thread_id,
+            ThreadPage.page_num,
+        )
+        .select_from(sa.join(ThreadPage, Thread))
+        .where(
+            sa.and_(ThreadPage.id.in_(incomplete_page_ids), Thread.closed == sa.false())
+        )
     )
     fetch_status = (
         sa.select(
-            [
-                ThreadPage.thread_id.label("thread_id"),
-                sa.func.max(ThreadPage.page_num).label("last_fetched_page"),
-            ]
+            ThreadPage.thread_id.label("thread_id"),
+            sa.func.max(ThreadPage.page_num).label("last_fetched_page"),
         )
         .group_by(ThreadPage.thread_id)
-        .alias("fetch_status")
+        .subquery("fetch_status")
     )
     unfetched_pages = sa.select(
-        [
-            Thread.id.label("thread_id"),
-            sa.func.generate_series(
-                fetch_status.c.last_fetched_page + 1, Thread.page_count
-            ).label("page_num"),
-        ],
-        from_obj=sa.join(Thread, fetch_status, Thread.id == fetch_status.c.thread_id),
-    )
+        Thread.id.label("thread_id"),
+        sa.func.generate_series(
+            fetch_status.c.last_fetched_page + 1, Thread.page_count
+        ).label("page_num"),
+    ).select_from(sa.join(Thread, fetch_status, Thread.id == fetch_status.c.thread_id))
     fetched_first_pages = (
-        sa.select([ThreadPage.thread_id]).where(ThreadPage.page_num == 1).as_scalar()
+        sa.select(ThreadPage.thread_id)
+        .where(ThreadPage.page_num == 1)
+        .scalar_subquery()
     )
-    unfetched_first_pages = sa.select(
-        [Thread.id.label("thread_id"), sa.literal(1, sa.Integer).label("page_num")],
-        from_obj=Thread,
-    ).where(Thread.id.notin_(fetched_first_pages))
+    unfetched_first_pages = (
+        sa.select(
+            Thread.id.label("thread_id"),
+            sa.literal(1, sa.Integer).label("page_num"),
+        )
+        .select_from(Thread)
+        .where(Thread.id.notin_(fetched_first_pages))
+    )
     q = sa.union(incomplete_pages, unfetched_pages, unfetched_first_pages)
-    q = q.order_by(q.c.thread_id.asc(), q.c.page_num.asc())
+    q = q.order_by(
+        q.selected_columns.thread_id.asc(), q.selected_columns.page_num.asc()
+    )
     return db_session.execute(q).fetchall()
 
 

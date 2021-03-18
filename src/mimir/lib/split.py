@@ -68,7 +68,7 @@ def extract_posts(db_session, page):
         # potentially some new posts or updated posts
         for post_data in posts:
             with db_session.no_autoflush:
-                post = db_session.query(ThreadPost).get(post_data.id)
+                post = db_session.get(ThreadPost, post_data.id)
             if post is None:
                 post = ThreadPost(
                     thread=page.thread,

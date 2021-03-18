@@ -31,7 +31,7 @@ def index(request):
     # Also this straight up breaks if there's never been any WPVs
     max_tp = request.db_session.query(
         sa.func.max(WriteupPostVersion.threadpost_id)
-    ).as_scalar()
+    ).scalar_subquery()
     tp = (
         request.db_session.query(ThreadPost)
         .filter(ThreadPost.id == max_tp)

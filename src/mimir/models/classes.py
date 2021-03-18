@@ -38,11 +38,12 @@ class Thread(Base):
     # 0 means we have not yet fetched anything
     page_count = Column(Integer, nullable=False)
     pages = relationship("ThreadPage", backref="thread")
-    posts = relationship("ThreadPost", backref="thread")
+    posts = relationship("ThreadPost", backref="thread", cascade_backrefs=False)
 
     pages_by_pagenum = relationship(
         "ThreadPage",
         collection_class=attribute_mapped_collection("page_num"),
+        viewonly=True,
     )
 
     @property
@@ -188,7 +189,9 @@ class WriteupPost(Base):
         ),
     )
 
-    changelog_entry = relationship("ChangeLogWriteupEntry", uselist=False)
+    changelog_entry = relationship(
+        "ChangeLogWriteupEntry", uselist=False, back_populates="writeup_post"
+    )
 
     def __repr__(self):
         return '<WriteupPost {self.id} of {self.writeup!r}: {self.index}, "{self.title}">'.format(
@@ -290,4 +293,6 @@ class ChangeLogWriteupEntry(Base):
         Timeflake, ForeignKey("change_log_batches.id"), nullable=True
     )
 
-    writeup_post = relationship("WriteupPost", uselist=False)
+    writeup_post = relationship(
+        "WriteupPost", uselist=False, back_populates="changelog_entry"
+    )
