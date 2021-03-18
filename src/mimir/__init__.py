@@ -52,6 +52,7 @@ def main(global_config, **settings):
             request_display_timezone, "display_timezone", reify=True
         )
         config.include(".security")
+        config.include(".toolbar")
         config.include(".models")
         config.add_subscriber(add_global, BeforeRender)
         config.include("pyramid_mako")
