@@ -69,7 +69,7 @@
 
   <div class="form-group row" id="post-html-btn-row">
     <label class="col-sm-2 col-form-label" for="writeup-author-slug">Post HTML:</label>
-    <button type="button" class="btn btn-danger col-sm-2 offset-sm-8">Edit HTML</button>
+    <button type="button" class="btn btn-warning col-sm-2 offset-sm-8">Edit HTML</button>
   </div>
 
 
@@ -81,6 +81,7 @@
   </div>
   <div class="form-group row">
     <button type="submit" class="btn btn-success col-sm-2">Save</button>
+    <button type="submit" formaction="${request.route_path('delete_extracted_post', post_id=wpv.id)}" class="btn btn-outline-danger col-sm-2 offset-sm-8">Delete</button>
   </div>
 
     </form>

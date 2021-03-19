@@ -194,6 +194,19 @@ def extracted_post(request):
     }
 
 
+@view_config(route_name="delete_extracted_post", request_method="POST")
+def extracted_post_delete(request):
+    wpv = (
+        request.db_session.query(WriteupPostVersion)
+        .options(joinedload(WriteupPostVersion.thread_post))
+        .filter_by(writeup_post=None)
+        .filter_by(id=request.matchdict["post_id"])
+        .one()
+    )
+    request.db_session.delete(wpv)
+    return HTTPSeeOther(location=request.route_path("index"))
+
+
 @view_config(route_name="extracted_post", request_method="POST")
 def extracted_post_save(request):
     wpv = (
@@ -562,6 +575,7 @@ def includeme(config):
     config.add_route("refetch_page", "/threads/{thread_id}/page/{page_num}/:refetch")
     config.add_route("extract_post", "/post/{post_id}/:extract")
     config.add_route("extracted_post", "/post/{post_id}")
+    config.add_route("delete_extracted_post", "/post/{post_id}/:delete")
     config.add_route("writeup", "/writeup/{writeup_id}")
     config.add_route("writeup_post_options", "/writeup/{writeup_id}/post-options")
     config.add_route("writeup_post", "/writeup/{writeup_id}/post/{post_index}")
