@@ -1,6 +1,9 @@
+import dataclasses
+from filecmp import dircmp
 import hashlib
+import os
 import pathlib
-from shutil import copyfileobj
+from shutil import copy2, copyfileobj, copytree, rmtree
 
 import feedgenerator
 from jsonfeed import JSONFeed
@@ -34,7 +37,12 @@ class Renderer(object):
         # ideally we wouldn't need to keep this, but renderers use it
         self.request = request
         self.db_session = request.db_session
-        self.render_path = pathlib.Path(request.registry.settings["render.location"])
+        self.render_path = pathlib.Path(
+            request.registry.settings["render.build_location"]
+        )
+        self.deploy_path = pathlib.Path(
+            request.registry.settings["render.serve_location"]
+        )
         self.site_title = request.registry.settings["render.site_title"]
         self.contact_email = request.registry.settings["render.contact_email"]
 
@@ -163,7 +171,12 @@ class Renderer(object):
         self._render_feed(feedgenerator.Atom1Feed, "atom.xml", batches)
         self._render_feed(JSONFeed, "feed.json", batches)
 
+    def _deploy(self):
+        Deployer(self.render_path, self.deploy_path).perform()
+
     def render_changed(self):
+        ensure_path(self.deploy_path)
+        ensure_path(self.render_path)
         batch = self._make_changelog_batch()
         if batch is None:
             return
@@ -179,8 +192,12 @@ class Renderer(object):
             self._render_writeup(writeup)
 
         self._render_changelog()
+        self._deploy()
 
     def render_all(self):
+        rmtree(self.render_path)
+        ensure_path(self.deploy_path)
+        ensure_path(self.render_path)
         self._make_changelog_batch()
         self._copy_static_files()
         self._render_toc()
@@ -191,3 +208,74 @@ class Renderer(object):
         ):
             self._render_writeup(writeup)
         self._render_changelog()
+        self._deploy()
+
+
+@dataclasses.dataclass
+class Deployer(object):
+    src_dir: pathlib.Path
+    dest_dir: pathlib.Path
+
+    to_add: set[pathlib.PurePath] = dataclasses.field(
+        default_factory=set, init=False, repr=False, compare=False
+    )
+    to_update: set[pathlib.PurePath] = dataclasses.field(
+        default_factory=set, init=False, repr=False, compare=False
+    )
+    to_remove: set[pathlib.PurePath] = dataclasses.field(
+        default_factory=set, init=False, repr=False, compare=False
+    )
+
+    def _analyze(
+        self,
+        left_dir: pathlib.Path,
+        right_dir: pathlib.Path,
+        left_prefix: pathlib.PurePath,
+        right_prefix: pathlib.PurePath,
+    ):
+        d = dircmp(left_dir, right_dir)
+        for name in d.left_only:
+            self.to_add.add(left_prefix / name)
+        for name in d.right_only:
+            self.to_remove.add(right_prefix / name)
+        for name in d.diff_files:
+            self.to_update.add(left_prefix / name)
+        for sub in d.common_dirs:
+            self._analyze(
+                left_dir / sub, right_dir / sub, left_prefix / sub, right_prefix / sub
+            )
+
+    def analyze(self):
+        self._analyze(
+            self.src_dir, self.dest_dir, pathlib.PurePath(""), pathlib.PurePath("")
+        )
+
+    def _copy(self, paths: set[pathlib.PurePath]):
+        for path in paths:
+            src_path = self.src_dir / path
+            dest_path = self.dest_dir / path
+            if src_path.is_dir():
+                # ensure_path(dest_path)
+                copytree(src_path, dest_path, dirs_exist_ok=True)
+            else:
+                copy2(src_path, dest_path)
+
+    def _remove(self, paths: set[pathlib.PurePath]):
+        for path in paths:
+            dest_path = self.dest_dir / path
+            if dest_path.is_dir():
+                rmtree(dest_path)
+            else:
+                os.remove(dest_path)
+
+    def perform(self):
+        # order matters! added files first, then modified files, then deleted files
+        self.analyze()
+
+        # print("Add: ", self.to_add)
+        # print("Update: ", self.to_update)
+        # print("Remove: ", self.to_remove)
+
+        self._copy(self.to_add)
+        self._copy(self.to_update)
+        self._remove(self.to_remove)
