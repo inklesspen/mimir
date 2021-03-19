@@ -9,10 +9,10 @@
   <h1>${writeup.title} <small>by ${writeup.author}</small></h1>
 </div>
 % if writeup.offensive_content:
-<img class="contentwarning" src="${request.route_path('rendered_static_file', filename='gross.png')}" alt="This RPG is pretty gross.">
+<img class="contentwarning" src="${static_file_route(filename='gross.png')}" alt="This RPG is pretty gross.">
 % endif
 % if writeup.triggery_content:
-<img class="contentwarning" src="${request.route_path('rendered_static_file', filename='triggery.png')}" alt="This RPG may trigger some people.">
+<img class="contentwarning" src="${static_file_route(filename='triggery.png')}" alt="This RPG may trigger some people.">
 % endif
 
 <div class="row post-toc">
@@ -43,5 +43,5 @@ ${post.active_version.html_with_fixed_image_urls(request) | n}
 </div>
 % endfor
 <%block name="in_footer">
-<script src="${request.route_path('rendered_static_file', filename='timg.js')}"></script>
+<script src="${static_file_route(filename='timg.js')}"></script>
 </%block>

@@ -1,3 +1,4 @@
+import hashlib
 import pathlib
 from shutil import copyfileobj
 
@@ -21,6 +22,13 @@ def ensure_path(path):
     path.mkdir(parents=True, exist_ok=True)
 
 
+def hash_file(filelike):
+    h = hashlib.sha256()
+    while chunk := filelike.read(4096):
+        h.update(chunk)
+    return h.hexdigest()
+
+
 class Renderer(object):
     def __init__(self, request):
         # ideally we wouldn't need to keep this, but renderers use it
@@ -30,28 +38,41 @@ class Renderer(object):
         self.site_title = request.registry.settings["render.site_title"]
         self.contact_email = request.registry.settings["render.contact_email"]
 
+        self.static_map = {}
+
     @staticmethod
     def write_html(path, contents):
         ensure_path(path.parent)
         path.write_text(contents, encoding="utf-8")
+
+    def _static_file_route(self, filename):
+        return self.static_map[filename]
 
     def _copy_static_files(self):
         static_dest = self.render_path / "static"
         ensure_path(static_dest)
         filenames = pkg_resources.resource_listdir("mimir", "render/static")
         for filename in filenames:
-            outpath = static_dest / filename
+            resource_name = ["mimir", "/".join(["render/static", filename])]
+            filename_parts = filename.split(".", 1)
+            filehash = hash_file(pkg_resources.resource_stream(*resource_name))
+            outfilename = "{}.{}.{}".format(
+                filename_parts[0], filehash, filename_parts[1]
+            )
+            outpath = static_dest / outfilename
             with outpath.open(mode="wb") as out:
                 copyfileobj(
-                    pkg_resources.resource_stream(
-                        "mimir", "/".join(["render/static", filename])
-                    ),
+                    pkg_resources.resource_stream(*resource_name),
                     out,
                 )
+            self.static_map[filename] = self.request.route_path(
+                "rendered_static_file", filename=outfilename
+            )
 
     def _render_template(self, template, **data):
         data["site_title"] = self.site_title
         data["contact_email"] = self.contact_email
+        data["static_file_route"] = self._static_file_route
 
         return pyramid.renderers.render(template, data, request=self.request).strip()
 
