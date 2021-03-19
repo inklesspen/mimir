@@ -7,6 +7,7 @@ from sqlalchemy import (
     Column,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Unicode,
@@ -112,6 +113,7 @@ class Writeup(Base):
         UniqueConstraint(
             "author_slug", "writeup_slug", name="uq_writeups_author_slug_writeup_slug"
         ),
+        Index("collated_title", sa.column("title").collate("writeuptitle")),
     )
     id = Column(Integer, primary_key=True)
     author_slug = Column(String(100), nullable=False, index=True)
@@ -123,6 +125,7 @@ class Writeup(Base):
             "ongoing", "abandoned", "completed", native_enum=False, name="check_status"
         ),
         nullable=False,
+        index=True,
     )
     published = Column(Boolean, nullable=False, default=False)
     # anything with offensive_content will be blocked in robots.txt
@@ -165,7 +168,7 @@ class Writeup(Base):
 class WriteupPost(Base):
     id = Column(Integer, primary_key=True)
     writeup_id = Column(Integer, ForeignKey("writeups.id"), nullable=False)
-    author = Column(Unicode(40), nullable=False)
+    author = Column(Unicode(40), nullable=False, index=True)
     index = Column(Integer, nullable=False)
     # Some posts have 1.5 and so on, but I don't want to use floats
     ordinal = Column(Unicode(5), nullable=False)
@@ -208,9 +211,16 @@ class WriteupPostVersion(Base):
             ),
             name="check_attachment",
         ),
+        Index(
+            "unattached_wpv",
+            sa.column("id"),
+            postgresql_where=sa.column("writeuppost_id") == sa.null(),
+        ),
     )
     id = Column(Integer, primary_key=True)
-    writeuppost_id = Column(Integer, ForeignKey("writeup_posts.id"), nullable=True)
+    writeuppost_id = Column(
+        Integer, ForeignKey("writeup_posts.id"), nullable=True, index=True
+    )
     html = Column(UnicodeText, nullable=True)
     threadpost_id = Column(Integer, ForeignKey("thread_posts.id"), nullable=False)
     created_at = Column(AwareDateTime, nullable=False)

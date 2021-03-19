@@ -39,10 +39,14 @@ def index(request):
         .one()
     )
 
+    extracted_wpv_ids = (
+        sa.select(WriteupPostVersion.id).filter_by(writeup_post=None).scalar_subquery()
+    )
+
     extracted_wpvs = (
         request.db_session.query(WriteupPostVersion)
         .options(joinedload(WriteupPostVersion.thread_post))
-        .filter_by(writeup_post=None)
+        .filter(WriteupPostVersion.id.in_(extracted_wpv_ids))
         .order_by(WriteupPostVersion.id.asc())
         .all()
     )
