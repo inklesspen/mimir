@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.5.7
+alembic==1.5.8
     # via -r requirements/main.in
 argon2-cffi==20.1.0
     # via passlib
@@ -34,7 +34,7 @@ hupper==1.10.2
     # via pyramid
 idna==2.10
     # via requests
-lxml==4.6.2
+lxml==4.6.3
     # via -r requirements/main.in
 mako==1.1.4
     # via
@@ -95,9 +95,9 @@ six==1.15.0
     #   feedgenerator
     #   html5lib
     #   python-dateutil
-soupsieve==2.2
+soupsieve==2.2.1
     # via beautifulsoup4
-sqlalchemy==1.4.1
+sqlalchemy==1.4.2
     # via
     #   -r requirements/main.in
     #   alembic
@@ -125,7 +125,7 @@ webob==1.8.7
     # via pyramid
 zope.deprecation==4.4.0
     # via pyramid
-zope.interface==5.2.0
+zope.interface==5.3.0
     # via
     #   pyramid
     #   pyramid-retry
