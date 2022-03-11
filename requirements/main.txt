@@ -48,20 +48,27 @@ passlib[argon2]==1.7.4
     # via -r requirements/main.in
 pastedeploy==2.1.1
     # via plaster-pastedeploy
-pillow==8.1.2
+pillow==9.0.1
     # via -r requirements/main.in
-plaster-pastedeploy==0.7
-    # via
-    #   -r requirements/main.in
-    #   pyramid
 plaster==1.0
     # via
     #   plaster-pastedeploy
+    #   pyramid
+plaster-pastedeploy==0.7
+    # via
+    #   -r requirements/main.in
     #   pyramid
 psycopg2==2.8.6
     # via -r requirements/main.in
 pycparser==2.20
     # via cffi
+pyramid==2.0
+    # via
+    #   -r requirements/main.in
+    #   pyramid-exclog
+    #   pyramid-mako
+    #   pyramid-retry
+    #   pyramid-tm
 pyramid-exclog==1.0
     # via -r requirements/main.in
 pyramid-mako==1.1.0
@@ -70,13 +77,6 @@ pyramid-retry==2.1.1
     # via -r requirements/main.in
 pyramid-tm==2.4
     # via -r requirements/main.in
-pyramid==2.0
-    # via
-    #   -r requirements/main.in
-    #   pyramid-exclog
-    #   pyramid-mako
-    #   pyramid-retry
-    #   pyramid-tm
 python-dateutil==2.8.1
     # via
     #   -r requirements/main.in
@@ -101,14 +101,14 @@ sqlalchemy==1.4.2
     # via
     #   -r requirements/main.in
     #   alembic
-    #   zope.sqlalchemy
+    #   zope-sqlalchemy
 timeflake==0.3.3
     # via -r requirements/main.in
 transaction==3.0.1
     # via
     #   -r requirements/main.in
     #   pyramid-tm
-    #   zope.sqlalchemy
+    #   zope-sqlalchemy
 translationstring==1.4
     # via pyramid
 urllib3==1.26.4
@@ -123,15 +123,15 @@ webencodings==0.5.1
     # via html5lib
 webob==1.8.7
     # via pyramid
-zope.deprecation==4.4.0
+zope-deprecation==4.4.0
     # via pyramid
-zope.interface==5.3.0
+zope-interface==5.3.0
     # via
     #   pyramid
     #   pyramid-retry
     #   transaction
-    #   zope.sqlalchemy
-zope.sqlalchemy==1.3
+    #   zope-sqlalchemy
+zope-sqlalchemy==1.3
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
