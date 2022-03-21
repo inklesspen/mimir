@@ -5,13 +5,13 @@
 #    pip-compile --output-file=requirements/main.txt requirements/main.in
 #
 alembic==1.5.8
-    # via -r requirements/main.in
+    # via -r main.in
 argon2-cffi==20.1.0
     # via passlib
 attrs==20.3.0
-    # via -r requirements/main.in
+    # via -r main.in
 beautifulsoup4==4.9.3
-    # via -r requirements/main.in
+    # via -r main.in
 certifi==2020.12.5
     # via requests
 cffi==1.14.5
@@ -19,23 +19,23 @@ cffi==1.14.5
 chardet==4.0.0
     # via requests
 django-jsonfeed==0.3.1
-    # via -r requirements/main.in
+    # via -r main.in
 feedgenerator==1.9.1
-    # via -r requirements/main.in
+    # via -r main.in
 ftfy==5.9
-    # via -r requirements/main.in
+    # via -r main.in
 greenlet==1.0.0
     # via sqlalchemy
 hashfs==0.7.2
-    # via -r requirements/main.in
+    # via -r main.in
 html5lib==1.1
-    # via -r requirements/main.in
+    # via -r main.in
 hupper==1.10.2
     # via pyramid
 idna==2.10
     # via requests
 lxml==4.6.3
-    # via -r requirements/main.in
+    # via -r main.in
 mako==1.1.4
     # via
     #   alembic
@@ -43,52 +43,52 @@ mako==1.1.4
 markupsafe==1.1.1
     # via mako
 marshmallow==3.10.0
-    # via -r requirements/main.in
+    # via -r main.in
 passlib[argon2]==1.7.4
-    # via -r requirements/main.in
+    # via -r main.in
 pastedeploy==2.1.1
     # via plaster-pastedeploy
 pillow==8.1.2
-    # via -r requirements/main.in
-plaster-pastedeploy==0.7
-    # via
-    #   -r requirements/main.in
-    #   pyramid
+    # via -r main.in
 plaster==1.0
     # via
     #   plaster-pastedeploy
     #   pyramid
+plaster-pastedeploy==0.7
+    # via
+    #   -r main.in
+    #   pyramid
 psycopg2==2.8.6
-    # via -r requirements/main.in
+    # via -r main.in
 pycparser==2.20
     # via cffi
-pyramid-exclog==1.0
-    # via -r requirements/main.in
-pyramid-mako==1.1.0
-    # via -r requirements/main.in
-pyramid-retry==2.1.1
-    # via -r requirements/main.in
-pyramid-tm==2.4
-    # via -r requirements/main.in
 pyramid==2.0
     # via
-    #   -r requirements/main.in
+    #   -r main.in
     #   pyramid-exclog
     #   pyramid-mako
     #   pyramid-retry
     #   pyramid-tm
+pyramid-exclog==1.0
+    # via -r main.in
+pyramid-mako==1.1.0
+    # via -r main.in
+pyramid-retry==2.1.1
+    # via -r main.in
+pyramid-tm==2.4
+    # via -r main.in
 python-dateutil==2.8.1
     # via
-    #   -r requirements/main.in
+    #   -r main.in
     #   alembic
 python-editor==1.0.4
     # via alembic
 pytz==2021.1
     # via
-    #   -r requirements/main.in
+    #   -r main.in
     #   feedgenerator
 requests==2.25.1
-    # via -r requirements/main.in
+    # via -r main.in
 six==1.15.0
     # via
     #   argon2-cffi
@@ -99,40 +99,40 @@ soupsieve==2.2.1
     # via beautifulsoup4
 sqlalchemy==1.4.2
     # via
-    #   -r requirements/main.in
+    #   -r main.in
     #   alembic
-    #   zope.sqlalchemy
+    #   zope-sqlalchemy
 timeflake==0.3.3
-    # via -r requirements/main.in
+    # via -r main.in
 transaction==3.0.1
     # via
-    #   -r requirements/main.in
+    #   -r main.in
     #   pyramid-tm
-    #   zope.sqlalchemy
+    #   zope-sqlalchemy
 translationstring==1.4
     # via pyramid
 urllib3==1.26.4
     # via requests
 venusian==3.0.0
     # via pyramid
-waitress==2.0.0
-    # via -r requirements/main.in
+waitress==2.1.1
+    # via -r main.in
 wcwidth==0.2.5
     # via ftfy
 webencodings==0.5.1
     # via html5lib
 webob==1.8.7
     # via pyramid
-zope.deprecation==4.4.0
+zope-deprecation==4.4.0
     # via pyramid
-zope.interface==5.3.0
+zope-interface==5.3.0
     # via
     #   pyramid
     #   pyramid-retry
     #   transaction
-    #   zope.sqlalchemy
-zope.sqlalchemy==1.3
-    # via -r requirements/main.in
+    #   zope-sqlalchemy
+zope-sqlalchemy==1.3
+    # via -r main.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
