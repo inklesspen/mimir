@@ -1,6 +1,5 @@
 import re
 
-import dateutil.tz
 import pytz
 import sqlalchemy as sa
 from sqlalchemy import (
@@ -83,7 +82,9 @@ class ThreadPage(Base):
     def page_tz(self):
         if self.utc_offset_at_fetch is None:
             return pytz.timezone(self.fetched_with.timezone)
-        return dateutil.tz.tzoffset("Fetched Page", self.utc_offset_at_fetch)
+        # pytz.FixedOffset takes the offset in minutes, for some reason
+        minutes = self.utc_offset_at_fetch / 60
+        return pytz.FixedOffset(minutes)
 
 
 class ThreadPost(Base):
