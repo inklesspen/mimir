@@ -4,7 +4,12 @@ import sys
 
 from pyramid.paster import bootstrap, setup_logging
 
-from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
+from ..lib.fetch import (
+    determine_fetches,
+    fetch_thread_page,
+    validate_cred,
+    get_cred_timezone_offset,
+)
 from ..lib.split import extract_posts_from_pages
 from ..models import Credential
 
@@ -28,8 +33,9 @@ def fetch_threads(db_session):
     if not cred.valid:
         raise ValueError("Cred invalid")
     fetches = determine_fetches(db_session, cred)
+    offset = get_cred_timezone_offset(cred)
     for thread_id, page_num in fetches:
-        fetch_thread_page(db_session, cred, thread_id, page_num)
+        fetch_thread_page(db_session, cred, thread_id, page_num, offset)
 
     extract_posts_from_pages(db_session)
 

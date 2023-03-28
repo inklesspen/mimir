@@ -1,5 +1,7 @@
 import re
 
+import dateutil.tz
+import pytz
 import sqlalchemy as sa
 from sqlalchemy import (
     Boolean,
@@ -67,7 +69,7 @@ class ThreadPage(Base):
     last_fetched = Column(AwareDateTime, nullable=False)
     last_split = Column(AwareDateTime, nullable=True)
     fetched_with_id = Column(Integer, ForeignKey("credentials.id"), nullable=False)
-    # TODO: add timezone here
+    utc_offset_at_fetch = Column(Integer, nullable=True)
     # TODO: allow multiple fetches, generally only caring about the latest one
     # but keeping the rest around just in case?
     posts = relationship("ThreadPost", backref="page", order_by="ThreadPost.id")
@@ -76,6 +78,12 @@ class ThreadPage(Base):
     @property
     def url(self):
         return "{}&pagenumber={}".format(self.thread.url, self.page_num)
+
+    @property
+    def page_tz(self):
+        if self.utc_offset_at_fetch is None:
+            return pytz.timezone(self.fetched_with.timezone)
+        return dateutil.tz.tzoffset("Fetched Page", self.utc_offset_at_fetch)
 
 
 class ThreadPost(Base):

@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from ftfy import bad_codecs
 import requests
 import sqlalchemy as sa
+from urllib.parse import urlparse, parse_qs
 
 from ..models import Thread, ThreadPage, ThreadPost
 
@@ -17,8 +18,26 @@ def validate_cred(cred):
     cred.username = soup.find(id="loggedinusername").text
 
 
+def get_cred_timezone_offset(cred):
+    # https://forums.somethingawful.com/member.php?action=editoptions
+    resp = fetch_sa_page(
+        "https://forums.somethingawful.com/member.php",
+        {"action": "editoptions"},
+        cred.cookies,
+    )
+    soup = make_soup(resp)
+    tzo = soup.find(attrs={"name": "timezoneoffset"})
+    hour_offset_str = tzo.find(selected=True)["value"]
+    hour_offset = float(hour_offset_str)
+    is_dst = soup.find(attrs={"name": "use_dst", "checked": True})["value"] == "yes"
+    if is_dst:
+        hour_offset += 1
+    second_offset = hour_offset * 60 * 60
+    return second_offset
+
+
 def update_thread_status(thread, cred):
-    resp = fetch_thread_page_html(thread.id, 1, cred.cookies)
+    resp = _fetch_thread_page_html(thread.id, 1, cred)
     soup = make_soup(resp)
     page_count = extract_page_count(soup)
     thread.page_count = page_count
@@ -79,9 +98,18 @@ def determine_fetches(db_session, cred):
     return db_session.execute(q).fetchall()
 
 
-def fetch_thread_page(db_session, cred, thread_id, page_num):
-    resp = fetch_thread_page_html(thread_id, page_num, cred.cookies)
+def fetch_thread_page(db_session, cred, thread_id, page_num, offset):
+    resp = _fetch_thread_page_html(thread_id, page_num, cred)
     soup = make_soup(resp)
+
+    # Inline the ignored posts
+    for ignored_link in soup.find_all(class_="ignored-post-link"):
+        ignored_params = parse_qs(urlparse(ignored_link["href"]).query)
+        post_el = ignored_link.find_parent("table", class_="post")
+        ignored_post_page_resp = fetch_sa_page_with_cred(ignored_params, cred)
+        ignored_soup = make_soup(ignored_post_page_resp)
+        ignored_post_el = ignored_soup.find(id=post_el["id"])
+        post_el.replace_with(ignored_post_el)
 
     thread = db_session.query(Thread).filter_by(id=thread_id).one()
     if page_num in thread.pages_by_pagenum:
@@ -93,6 +121,7 @@ def fetch_thread_page(db_session, cred, thread_id, page_num):
     page.last_fetched = sa.func.now()
     page.fetched_with = cred
     page.html = str(soup)
+    page.utc_offset_at_fetch = offset
 
     db_session.flush()
 
@@ -120,15 +149,19 @@ def extract_closed(soup):
     return buttons.find(alt="Reply") is None
 
 
-def fetch_thread_page_html(thread_id, page_num, cookies=None):
+def _fetch_thread_page_html(thread_id, page_num, cred):
     params = {
         "threadid": thread_id,
         "pagenumber": page_num,
         "noseen": 1,
         "perpage": 40,
     }
+    return fetch_sa_page_with_cred(params, cred)
+
+
+def fetch_sa_page_with_cred(params, cred):
     url = "http://forums.somethingawful.com/showthread.php"
-    return fetch_sa_page(url, params, cookies)
+    return fetch_sa_page(url, params, cred.cookies)
 
 
 def fetch_sa_page(url, params, cookies=None):

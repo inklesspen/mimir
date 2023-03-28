@@ -3,7 +3,6 @@ from urllib.parse import urljoin
 
 import bs4
 from dateutil.parser import parse
-import pytz
 import sqlalchemy as sa
 from sqlalchemy import null, or_
 
@@ -47,13 +46,8 @@ def _split_threadpage(html, url, tz):
     return posts
 
 
-def split_threadpage(page, tz):
-    return _split_threadpage(page.html, page.url, tz)
-
-
 def extract_posts(db_session, page):
-    tz = pytz.timezone(page.fetched_with.timezone)
-    posts = split_threadpage(page, tz)
+    posts = _split_threadpage(page.html, page.url, page.page_tz)
     if page.last_split is None:
         # splitting for the first time, no need to check if posts exist
         for post_data in posts:
