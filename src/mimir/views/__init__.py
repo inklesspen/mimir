@@ -6,7 +6,12 @@ import sqlalchemy as sa
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
 from ..lib.extract import extract_post_from_wpv, extract_post_into_wpv
-from ..lib.fetch import determine_fetches, fetch_thread_page, validate_cred
+from ..lib.fetch import (
+    determine_fetches,
+    fetch_thread_page,
+    validate_cred,
+    get_cred_timezone_offset,
+)
 from ..lib.split import extract_posts, extract_posts_from_pages
 from ..models import (
     ChangeLogGenericEntry,
@@ -134,11 +139,13 @@ def refetch_page(request):
         .options(joinedload(ThreadPage.posts), joinedload(ThreadPage.thread))
         .one()
     )
+    offset = get_cred_timezone_offset(thread_page.fetched_with)
     fetch_thread_page(
         request.db_session,
         thread_page.fetched_with,
         thread_page.thread_id,
         thread_page.page_num,
+        offset,
     )
     extract_posts(request.db_session, thread_page)
     request.db_session.flush()
@@ -533,9 +540,10 @@ def fetch_threads(request):
     validate_cred(cred)
     if not cred.valid:
         return HTTPForbidden("Cred invalid")
+    offset = get_cred_timezone_offset(cred)
     fetches = determine_fetches(request.db_session, cred)
     for thread_id, page_num in fetches:
-        fetch_thread_page(request.db_session, cred, thread_id, page_num)
+        fetch_thread_page(request.db_session, cred, thread_id, page_num, offset)
 
     extract_posts_from_pages(request.db_session)
     return HTTPSeeOther(location=request.route_path("index"))
