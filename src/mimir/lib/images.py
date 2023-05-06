@@ -10,6 +10,7 @@ EXTS = {
     "JPEG": ".jpeg",
     "PNG": ".png",
     "GIF": ".gif",
+    "WEBP": ".webp",
 }
 
 
@@ -52,6 +53,7 @@ def mirror_image(request, img_tag, referer, cred):
         except (
             requests.exceptions.ConnectionError,
             requests.exceptions.TooManyRedirects,
+            requests.exceptions.ReadTimeout,
         ) as err:
             raise CantConnect(err)
         if not r.headers["Content-Type"].startswith("image"):
