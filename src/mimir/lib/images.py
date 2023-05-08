@@ -26,6 +26,30 @@ class CantConnect(MirrorError):
     pass
 
 
+def open_and_resize_image(img_bytes: BytesIO):
+    original_threshold = Image.MAX_IMAGE_PIXELS
+    Image.MAX_IMAGE_PIXELS = original_threshold * 4
+    try:
+        img = Image.open(img_bytes)
+        img.thumbnail((3000, 3000), resample=Image.LANCZOS)
+        out_bytes = BytesIO()
+        img.save(out_bytes, img.format)
+        return out_bytes, img
+    finally:
+        Image.MAX_IMAGE_PIXELS = original_threshold
+
+
+def open_image(r: requests.Response):
+    img_bytes = BytesIO(r.content)
+    try:
+        img = Image.open(img_bytes)
+    except OSError as err:
+        raise NotAnImage(err)
+    except Image.DecompressionBombError:
+        return open_and_resize_image(img_bytes)
+    return img_bytes, img
+
+
 def mirror_image(request, img_tag, referer, cred):
     did_fetch = False
     if "data-mirrored" in img_tag.attrs:
@@ -62,13 +86,9 @@ def mirror_image(request, img_tag, referer, cred):
             "image"
         ):
             raise NotAnImage(r.headers["Content-Type"])
-        bytes = BytesIO(r.content)
-        try:
-            img = Image.open(bytes)
-        except OSError as err:
-            raise NotAnImage(err)
+        img_bytes, img = open_image(r)
         ext = EXTS[img.format]
-        address = request.hashfs.put(bytes, ext)
+        address = request.hashfs.put(img_bytes, ext)
         request.db_session.add(FetchedImage(id=address.id, orig_url=img_src))
     img_tag["data-mirrored"] = "mirrored"
     img_tag["data-orig-src"] = img_src
