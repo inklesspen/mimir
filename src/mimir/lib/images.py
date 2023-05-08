@@ -56,7 +56,11 @@ def mirror_image(request, img_tag, referer, cred):
             requests.exceptions.ReadTimeout,
         ) as err:
             raise CantConnect(err)
-        if not r.headers["Content-Type"].startswith("image"):
+        # Content-Type may not be in headers!!! but if not, let's just try opening it
+        # since it was in an <img> tag anyway
+        if "Content-Type" in r.headers and not r.headers["Content-Type"].startswith(
+            "image"
+        ):
             raise NotAnImage(r.headers["Content-Type"])
         bytes = BytesIO(r.content)
         try:
